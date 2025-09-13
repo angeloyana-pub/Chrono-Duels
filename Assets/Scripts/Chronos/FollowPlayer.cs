@@ -3,7 +3,7 @@ using UnityEngine;
 class FollowPlayer : MonoBehaviour {
     public Transform player;
     public float speed = 4.5f;
-    public float minDistance = 0.7f;
+    public float minDistance = 0.5f;
     public bool disabled = false;
     
     private Animator anim;

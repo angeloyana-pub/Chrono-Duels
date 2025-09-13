@@ -8,11 +8,13 @@ class Inventory : MonoBehaviour {
         // TODO: display UI for chronos.
         
         foreach (ChronoInventorySlot chrono in chronos) {
-            if (chrono.isActive) {
+            chrono.chrono.Init();
+            if (chrono.isActive)
+            {
                 Instantiate(
                     chrono.chrono.data.prefab,
-                    // transform.position - transform.right * 0.7f,
-                    transform.position,
+                    transform.position - transform.right * 0.5f,
+                    // transform.position,
                     Quaternion.identity
                 ).GetComponent<FollowPlayer>().SetPlayer(transform);
             }
