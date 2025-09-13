@@ -1,24 +1,23 @@
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class BattleChrono : MonoBehaviour
 {
-    public float speed = 5f;
-    public bool disabled = false;
-
+    public float speed = 3f;
     public Vector3 destination;
     public bool hasDestination = false;
-    public float destinationSpeed = 3f;
     public bool flipXOnArrive = false;
 
     private Animator anim;
     private SpriteRenderer sr;
 
+    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         anim = GetComponent<Animator>();
         sr = GetComponent<SpriteRenderer>();
     }
 
+    // Update is called once per frame
     void Update()
     {
         if (hasDestination)
@@ -26,7 +25,7 @@ public class PlayerController : MonoBehaviour
             transform.position = Vector3.MoveTowards(
                 transform.position,
                 destination,
-                destinationSpeed * Time.deltaTime
+                speed * Time.deltaTime
             );
 
             Vector3 direction = (destination - transform.position).normalized;
@@ -48,35 +47,6 @@ public class PlayerController : MonoBehaviour
             }
             return;
         }
-
-        if (!disabled)
-        {
-            float moveX = Input.GetAxis("Horizontal");
-            float moveY = Input.GetAxis("Vertical");
-
-            anim.SetFloat("Speed", moveX == 0 && moveY == 0 ? 0 : 1);
-            if (moveX > 0)
-            {
-                sr.flipX = false;
-            }
-            else if (moveX < 0)
-            {
-                sr.flipX = true;
-            }
-
-            Vector3 move = transform.right * moveX + transform.forward * moveY;
-            transform.Translate(move * speed * Time.deltaTime);
-        }
-    }
-
-    public void EnableController()
-    {
-        disabled = false;
-    }
-
-    public void DisableController()
-    {
-        disabled = true;
     }
 
     public void SetDestination(Vector3 destination, bool flipXOnArrive = false)

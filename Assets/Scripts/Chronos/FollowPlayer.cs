@@ -1,61 +1,51 @@
 using UnityEngine;
 
-public class FollowPlayer : MonoBehaviour
-{
+class FollowPlayer : MonoBehaviour {
     public Transform player;
+    public float speed = 4.5f;
     public float minDistance = 0.7f;
-    public float speed;
+    public bool disabled = false;
+    
     private Animator anim;
-
-    void Start()
-    {
+    private SpriteRenderer sr;
+    
+    void Start() {
         anim = GetComponent<Animator>();
-        if (speed == 0f)
-        {
-            speed = player.GetComponent<PlayerController>().speed - 0.5f;
-        }
+        sr = GetComponent<SpriteRenderer>();
     }
-
-    void Update()
-    {
+    
+    void Update() {
         float distance = Vector3.Distance(transform.position, player.position);
-
-        if (distance > minDistance)
-        {
-            transform.position = Vector3.MoveTowards(
-                transform.position,
-                player.position,
-                speed * Time.deltaTime
-            );
-            anim.SetFloat("Speed", 1);
-        }
-        else
-        {
-            anim.SetFloat("Speed", 0);
-        }
-
-        Vector3 dir = player.position - transform.position;
-        if (dir.x > 0)
-        {
-            FaceRight();
-        }
-        else if (dir.x < 0)
-        {
-            FaceLeft();
+        if (!disabled && player != null) {
+            if (distance > minDistance) {
+                transform.position = Vector3.MoveTowards(
+                    transform.position,
+                    player.position,
+                    speed * Time.deltaTime
+                );
+                
+                Vector3 direction = (player.position - transform.position).normalized;
+                if (direction.x > 0) {
+                    sr.flipX = true;
+                } else if (direction.x < 0) {
+                    sr.flipX = false;
+                }
+                anim.SetFloat("Speed", 1);
+            } else {
+                anim.SetFloat("Speed", 0);
+            }
         }
     }
-
-    void FaceLeft()
-    {
-        Vector3 newScale = transform.localScale;
-        newScale.x = -Mathf.Abs(transform.localScale.x);
-        transform.localScale = newScale;
+    
+    public void SetPlayer(Transform player) {
+        this.player = player;
     }
-
-    void FaceRight()
-    {
-        Vector3 newScale = transform.localScale;
-        newScale.x = Mathf.Abs(transform.localScale.x);
-        transform.localScale = newScale;
+    
+    public void Enable() {
+        disabled = false;
+    }
+    
+    public void Disable() {
+        disabled = true;
     }
 }
