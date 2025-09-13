@@ -6,7 +6,7 @@ using TMPro;
 class DialogueManager : MonoBehaviour {
   public TextMeshProUGUI nameText;
   public TextMeshProUGUI contentText;
-  public Animator dialogueBoxAnim;
+  public GameObject dialogueBox;
   
   public float defaultTypingSpeed = 0.1f;
   public float fastTypingSpeed = 0.01f;
@@ -25,7 +25,7 @@ class DialogueManager : MonoBehaviour {
     foreach (DialogueItem item in dialogue.dialogue) {
       this.dialogue.Enqueue(item);
     }
-    dialogueBoxAnim.SetBool("IsOpen", true);
+    dialogueBox.SetActive(true);
     NextDialogueItem();
   }
   
@@ -60,6 +60,6 @@ class DialogueManager : MonoBehaviour {
   
   public void EndDialogue() {
     Debug.Log("Hide dialogue box...");
-    dialogueBoxAnim.SetBool("IsOpen", false);
+    dialogueBox.SetActive(false);
   }
 }
