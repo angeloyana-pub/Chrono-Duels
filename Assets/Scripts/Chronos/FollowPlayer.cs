@@ -1,51 +1,63 @@
 using UnityEngine;
 
-class FollowPlayer : MonoBehaviour {
-    public Transform player;
-    public float speed = 4.5f;
+class FollowPlayer : MonoBehaviour
+{
+    public float speed = 4f;
     public float minDistance = 0.5f;
-    public bool disabled = false;
-    
+
+    private Transform player;
     private Animator anim;
     private SpriteRenderer sr;
-    
-    void Start() {
+
+    void Start()
+    {
         anim = GetComponent<Animator>();
         sr = GetComponent<SpriteRenderer>();
     }
-    
-    void Update() {
-        float distance = Vector3.Distance(transform.position, player.position);
-        if (!disabled && player != null) {
-            if (distance > minDistance) {
+
+    void Update()
+    {
+        if (player != null)
+        {
+            float distance = Vector3.Distance(transform.position, player.position);
+            if (distance > minDistance)
+            {
                 transform.position = Vector3.MoveTowards(
                     transform.position,
                     player.position,
                     speed * Time.deltaTime
                 );
-                
+
                 Vector3 direction = (player.position - transform.position).normalized;
-                if (direction.x > 0) {
-                    sr.flipX = true;
-                } else if (direction.x < 0) {
-                    sr.flipX = false;
+                if (direction.x > 0)
+                {
+                    FaceRight();
+                }
+                else if (direction.x < 0)
+                {
+                    FaceLeft();
                 }
                 anim.SetFloat("Speed", 1);
-            } else {
+            }
+            else
+            {
                 anim.SetFloat("Speed", 0);
             }
         }
     }
-    
-    public void SetPlayer(Transform player) {
+
+    public void SetPlayer(Transform player)
+    {
         this.player = player;
     }
-    
-    public void Enable() {
-        disabled = false;
+
+    public void FaceLeft()
+    {
+        sr.flipX = true;
     }
-    
-    public void Disable() {
-        disabled = true;
+
+    public void FaceRight()
+    {
+        sr.flipX = false;
     }
 }

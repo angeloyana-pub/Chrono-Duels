@@ -3,23 +3,19 @@ using UnityEngine;
 public class BattleTrigger : MonoBehaviour
 {
     public BattleManager battleManager;
-    private BattleChrono battleChrono;
+
+    private EnemyChrono enemyChrono;
 
     void Start()
     {
-        battleChrono = GetComponent<BattleChrono>();
+        enemyChrono = GetComponent<EnemyChrono>();
     }
 
     void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            TriggerBattle();
+            battleManager.StartBattle(transform.position, other.transform, transform);
         }
-    }
-
-    void TriggerBattle()
-    {
-        battleManager.StartBattle(transform.position, battleChrono);
     }
 }

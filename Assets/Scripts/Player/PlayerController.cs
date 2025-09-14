@@ -3,12 +3,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float speed = 5f;
-    public bool disabled = false;
-
-    public Vector3 destination;
-    public bool hasDestination = false;
-    public float destinationSpeed = 3f;
-    public bool flipXOnArrive = false;
+    [HideInInspector] public bool isFacingRight = false;
 
     private Animator anim;
     private SpriteRenderer sr;
@@ -21,68 +16,43 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (hasDestination)
+        float moveX = Input.GetAxis("Horizontal");
+        float moveY = Input.GetAxis("Vertical");
+
+        anim.SetFloat("Speed", moveX == 0 && moveY == 0 ? 0 : 1);
+        if (moveX > 0)
         {
-            transform.position = Vector3.MoveTowards(
-                transform.position,
-                destination,
-                destinationSpeed * Time.deltaTime
-            );
-
-            Vector3 direction = (destination - transform.position).normalized;
-            if (direction.x > 0)
-            {
-                sr.flipX = false;
-            }
-            else if (direction.x < 0)
-            {
-                sr.flipX = true;
-            }
-
-            anim.SetFloat("Speed", 1);
-            if (transform.position == destination)
-            {
-                hasDestination = false;
-                anim.SetFloat("Speed", 0);
-                sr.flipX = flipXOnArrive;
-            }
-            return;
+            FaceRight();
+        }
+        else if (moveX < 0)
+        {
+            FaceLeft();
         }
 
-        if (!disabled)
-        {
-            float moveX = Input.GetAxis("Horizontal");
-            float moveY = Input.GetAxis("Vertical");
-
-            anim.SetFloat("Speed", moveX == 0 && moveY == 0 ? 0 : 1);
-            if (moveX > 0)
-            {
-                sr.flipX = false;
-            }
-            else if (moveX < 0)
-            {
-                sr.flipX = true;
-            }
-
-            Vector3 move = transform.right * moveX + transform.forward * moveY;
-            transform.Translate(move * speed * Time.deltaTime);
-        }
+        Vector3 move = transform.right * moveX + transform.forward * moveY;
+        transform.Translate(move * speed * Time.deltaTime);
     }
 
-    public void EnableController()
+    public void FaceLeft()
     {
-        disabled = false;
+        sr.flipX = true;
+        isFacingRight = false;
     }
 
-    public void DisableController()
+    public void FaceRight()
     {
-        disabled = true;
+        sr.flipX = false;
+        isFacingRight = true;
     }
 
-    public void SetDestination(Vector3 destination, bool flipXOnArrive = false)
+    public void Enable()
     {
-        this.destination = destination;
-        this.flipXOnArrive = flipXOnArrive;
-        hasDestination = true;
+        enabled = true;
+    }
+
+    public void Disable()
+    {
+        enabled = false;
+        anim.SetFloat("Speed", 0);
     }
 }

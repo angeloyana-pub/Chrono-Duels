@@ -1,44 +1,45 @@
-using UnityEngine;
 using Unity.Cinemachine;
-using System;
+using UnityEngine;
+using UnityEngine.Assertions.Must;
 
 public class BattleManager : MonoBehaviour
 {
-    public PlayerController player;
-    public CinemachineCamera battleCam;
-    private Vector3 battleLocation;
-    private BattleChrono enemy;
-    
-    public void StartBattle(Vector3 battleLocation, BattleChrono enemy)
-    {
-        // NOTE: this script must be attached on battle ui for this to work.
-        gameObject.SetActive(true);
+    public UIManager uiManager;
+    public CinemachineCamera battleCamera;
+    public Transform playerBattlePosition;
+    public Transform enemyBattlePosition;
 
+    private Vector3 currentBattlePosition;
+    private Transform player;
+    private PlayerController playerController;
+    private Transform enemy;
+
+    public void StartBattle(Vector3 battlePosition, Transform player, Transform enemy)
+    {
+        currentBattlePosition = battlePosition;
+        this.player = player;
         this.enemy = enemy;
-        this.battleLocation = battleLocation;
-        battleCam.Priority = 5;
-        player.DisableController();
-        player.SetDestination(
-            new Vector3(
-                battleLocation.x - 2f,
-                battleLocation.y,
-                battleLocation.z
-            )
-        );
-        enemy.SetDestination(
-            new Vector3(
-                battleLocation.x + 2f,
-                battleLocation.y,
-                battleLocation.z
-            )
-        );
+
+        uiManager.FocusBattleUI();
+        transform.position = battlePosition;
+        battleCamera.Priority = 5;
+
+        player.GetComponent<ActiveChronoManager>().HideActiveChrono();
+        playerController = player.GetComponent<PlayerController>();
+        player.position = playerBattlePosition.position;
+        playerController.Disable();
+        playerController.FaceRight();
+
+        EnemyChrono enemyChrono = enemy.GetComponent<EnemyChrono>();
+        enemy.position = enemyBattlePosition.position;
+        enemyChrono.FaceLeft();
     }
 
     public void EndBattle()
     {
-        battleCam.Priority = 0;
-        player.EnableController();
-        enemy.SetDestination(battleLocation);
-        gameObject.SetActive(false);
+        uiManager.FocusMainUI();
+        enemy.position = currentBattlePosition;
+        battleCamera.Priority = 0;
+        playerController.Enable();
     }
 }
