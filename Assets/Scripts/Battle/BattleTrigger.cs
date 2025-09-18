@@ -4,18 +4,18 @@ public class BattleTrigger : MonoBehaviour
 {
     public BattleManager battleManager;
 
-    private EnemyChrono enemyChrono;
+    private BattleChrono battleChrono;
 
     void Start()
     {
-        enemyChrono = GetComponent<EnemyChrono>();
+        battleChrono = GetComponent<BattleChrono>();
     }
 
     void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            battleManager.StartBattle(transform.position, other.transform, transform);
+            battleManager.StartBattle(transform.position, other.GetComponent<BattlePlayer>(), battleChrono);
         }
     }
 }

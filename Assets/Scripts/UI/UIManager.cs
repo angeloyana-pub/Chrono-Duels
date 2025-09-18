@@ -6,17 +6,27 @@ public class UIManager : MonoBehaviour
     public GameObject dialogueBox;
     public GameObject battleUI;
 
-    public void FocusMainUI()
+    void Start()
     {
-        dialogueBox.SetActive(false);
-        battleUI.SetActive(false);
-        mainUI.SetActive(true);
+        ShowMainUI();
     }
 
-    public void FocusBattleUI()
+    public void HideAllUI()
     {
         mainUI.SetActive(false);
         dialogueBox.SetActive(false);
+        battleUI.SetActive(false);
+    }
+    
+    public void ShowMainUI()
+    {
+        HideAllUI();
+        mainUI.SetActive(true);
+    }
+    
+    public void ShowBattleUI()
+    {
+        HideAllUI();
         battleUI.SetActive(true);
     }
 }

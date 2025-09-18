@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f6a122d6425741a4496701e79740a6fa, type: 3}
-  m_Name: Mushroom
+  m_Name: Fireworm
   m_EditorClassIdentifier: 
-  prefab: {fileID: 7256726366832108946, guid: b4564a494b9bea44db54c739c1a94638, type: 3}
-  name: Mushroom
-  baseHp: 20
-  baseDmg: 3
+  prefab: {fileID: 5603426112569655267, guid: b839d7110c5d8de4c9a2445d07e5405c, type: 3}
+  name: Fireworm
+  baseHp: 25
+  baseDmg: 6

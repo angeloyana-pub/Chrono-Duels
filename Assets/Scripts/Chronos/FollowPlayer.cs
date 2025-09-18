@@ -1,6 +1,6 @@
 using UnityEngine;
 
-class FollowPlayer : MonoBehaviour
+public class FollowPlayer : MonoBehaviour
 {
     public float speed = 4f;
     public float minDistance = 0.5f;
@@ -9,7 +9,7 @@ class FollowPlayer : MonoBehaviour
     private Animator anim;
     private SpriteRenderer sr;
 
-    void Start()
+    void Awake()
     {
         anim = GetComponent<Animator>();
         sr = GetComponent<SpriteRenderer>();
@@ -31,11 +31,11 @@ class FollowPlayer : MonoBehaviour
                 Vector3 direction = (player.position - transform.position).normalized;
                 if (direction.x > 0)
                 {
-                    FaceRight();
+                    sr.flipX = false;
                 }
                 else if (direction.x < 0)
                 {
-                    FaceLeft();
+                    sr.flipX = true;
                 }
                 anim.SetFloat("Speed", 1);
             }
@@ -49,15 +49,5 @@ class FollowPlayer : MonoBehaviour
     public void SetPlayer(Transform player)
     {
         this.player = player;
-    }
-
-    public void FaceLeft()
-    {
-        sr.flipX = true;
-    }
-
-    public void FaceRight()
-    {
-        sr.flipX = false;
     }
 }

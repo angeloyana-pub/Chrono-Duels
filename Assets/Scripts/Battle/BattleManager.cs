@@ -1,51 +1,72 @@
-using Unity.Cinemachine;
 using UnityEngine;
+using Unity.Cinemachine;
 
 public class BattleManager : MonoBehaviour
 {
     public UIManager uiManager;
-    public CinemachineCamera battleCamera;
+    public Transform battleGround;
     public Transform playerBattlePosition;
     public Transform allyBattlePosition;
     public Transform enemyBattlePosition;
-
-    private Vector3 currentBattlePosition;
-    private Transform player;
-    private PlayerController playerController;
-    private BattlePlayer battlePlayer;
-    private Transform enemy;
-
-    public void StartBattle(Vector3 battlePosition, Transform player, Transform enemy)
+    public CinemachineCamera battleCamera;
+    
+    public bool isPlayerTurn = true;
+    
+    private BattlePlayer player;
+    private BattleChrono enemy;
+    
+    public void StartBattle(Vector3 battlePosition, BattlePlayer player, BattleChrono enemy)
     {
-        currentBattlePosition = battlePosition;
+        // TODO: show black screen for transition and switch to battle ui.
         this.player = player;
         this.enemy = enemy;
-
-        uiManager.FocusBattleUI();
-        transform.position = battlePosition;
+        
+        battleGround.position = battlePosition;
         battleCamera.Priority = 5;
-
-        player.GetComponent<ActiveChronoManager>().HideActiveChrono();
-        playerController = player.GetComponent<PlayerController>();
-        player.position = playerBattlePosition.position;
-        playerController.Disable();
-        playerController.FaceRight();
-
-        battlePlayer = player.GetComponent<BattlePlayer>();
-        battlePlayer.SpawnFirstChrono(allyBattlePosition);
-
-        EnemyChrono enemyChrono = enemy.GetComponent<EnemyChrono>();
-        enemy.position = enemyBattlePosition.position;
-        enemyChrono.FaceLeft();
+        uiManager.ShowBattleUI();
+        
+        player.BattleSetup(playerBattlePosition, allyBattlePosition);
+        enemy.BattleSetup(battlePosition, enemyBattlePosition);
     }
-
-    public void EndBattle()
+    
+    public void PlayerAttack()
     {
-        uiManager.FocusMainUI();
-        enemy.position = currentBattlePosition;
+        /**
+         * TODO:
+         * - show attack dialogue
+         * - play attack animation
+         * - disable player ui
+         * - check for game over
+         * - show victory ui, destroy enemy gameobject, and put the enemy into inventory if enemy hp is down to 0.
+         */
+        if (!isPlayerTurn) return;
+        player.Attack(enemy);
+        isPlayerTurn = false;
+        EnemyAttack();
+    }
+    
+    private void EnemyAttack()
+    {
+        if (isPlayerTurn) return;
+        
+        /**
+         * TODO:
+         * - show attack dialogue
+         * - play attack animation
+         * - enable player ui
+         * - check for game over
+         * - do something if player ally chrono hp is down to 0 (e.g. stop the battle and teleport to nearest health center).
+         */
+        enemy.Attack(player);
+        isPlayerTurn = true;
+    }
+    
+    public void PlayerEscape() {
+        // TODO: show black screen for transition and switch back to main ui.
         battleCamera.Priority = 0;
-        battlePlayer.EndBattle();
-        playerController.Enable();
-        player.GetComponent<ActiveChronoManager>().ShowActiveChrono();
+        uiManager.ShowMainUI();
+        
+        player.PlayerEscape();
+        enemy.PlayerEscape();
     }
 }

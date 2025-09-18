@@ -1,38 +1,45 @@
 using UnityEngine;
 
-// NOTE: must be attached to player.
-class ActiveChronoManager : MonoBehaviour
+public class ActiveChronoManager : MonoBehaviour
 {
-    private GameObject activeChrono;
-    private PlayerController playerController;
+    private SpriteRenderer sr;
     private InventoryManager inventoryManager;
-
-    void Start()
+    
+    private GameObject activeChrono;
+    
+    void Awake()
     {
-        playerController = GetComponent<PlayerController>();
+        sr = GetComponent<SpriteRenderer>();
         inventoryManager = GetComponent<InventoryManager>();
-        ShowActiveChrono();
     }
-
-    public void ShowActiveChrono()
-    {
-        if (activeChrono != null) return;
-
-        PartyChrono activePartyChrono = inventoryManager.party.Find((x) => x.isActive);
-        if (activePartyChrono != null)
-        {
-            activeChrono = Instantiate(
-                activePartyChrono.stats.data.prefab,
-                transform.position - transform.right * (playerController.isFacingRight ? 0.5f : -0.5f),
-                Quaternion.identity
-            );
-            activeChrono.AddComponent<FollowPlayer>().SetPlayer(transform);
+    
+    void OnEnable() {
+        SpawnActiveChrono();
+    }
+    
+    void OnDisable() {
+        if (activeChrono != null) {
+            Destroy(activeChrono);
+            activeChrono = null;
         }
     }
-
-    public void HideActiveChrono()
+    
+    private void SpawnActiveChrono() {
+        if (inventoryManager.party.Count <= 0 || activeChrono != null) return;
+        
+        PartyChrono chrono = inventoryManager.party.Find(c => c.isActive);
+        if (chrono == null) return;
+        
+        activeChrono = Instantiate(
+            chrono.stats.data.prefab,
+            GetSpawnPosition(),
+            Quaternion.identity
+        );
+        activeChrono.AddComponent<FollowPlayer>().SetPlayer(transform);
+    }
+    
+    private Vector3 GetSpawnPosition()
     {
-        // TODO: show smoke animation before destroy.
-        Destroy(activeChrono);
+        return transform.position - transform.right * (sr.flipX ? -0.5f : 0.5f);
     }
 }

@@ -3,12 +3,11 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public float speed = 5f;
-    [HideInInspector] public bool isFacingRight = false;
 
     private Animator anim;
     private SpriteRenderer sr;
 
-    void Start()
+    void Awake()
     {
         anim = GetComponent<Animator>();
         sr = GetComponent<SpriteRenderer>();
@@ -22,37 +21,19 @@ public class PlayerController : MonoBehaviour
         anim.SetFloat("Speed", moveX == 0 && moveY == 0 ? 0 : 1);
         if (moveX > 0)
         {
-            FaceRight();
+            sr.flipX = false;
         }
         else if (moveX < 0)
         {
-            FaceLeft();
+            sr.flipX = true;
         }
 
         Vector3 move = transform.right * moveX + transform.forward * moveY;
         transform.Translate(move * speed * Time.deltaTime);
     }
-
-    public void FaceLeft()
+    
+    void OnDisable()
     {
-        sr.flipX = true;
-        isFacingRight = false;
-    }
-
-    public void FaceRight()
-    {
-        sr.flipX = false;
-        isFacingRight = true;
-    }
-
-    public void Enable()
-    {
-        enabled = true;
-    }
-
-    public void Disable()
-    {
-        enabled = false;
         anim.SetFloat("Speed", 0);
     }
 }
