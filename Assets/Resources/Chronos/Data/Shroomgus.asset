@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6a122d6425741a4496701e79740a6fa, type: 3}
   m_Name: Shroomgus
   m_EditorClassIdentifier: 
-  prefab: {fileID: 3582646165559561812, guid: 32b582d923c843749b7c996583d56324, type: 3}
+  prefab: {fileID: 8937321002697571661, guid: 32b582d923c843749b7c996583d56324, type: 3}
   name: Shroomgus
   baseHp: 25
   baseDmg: 6

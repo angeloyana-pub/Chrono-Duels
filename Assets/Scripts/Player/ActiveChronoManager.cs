@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class ActiveChronoManager : MonoBehaviour
 {
+    public float spawnDistance = 2f;
+
     private SpriteRenderer sr;
     private InventoryManager inventoryManager;
     
@@ -14,10 +16,12 @@ public class ActiveChronoManager : MonoBehaviour
     }
     
     void OnEnable() {
+        Debug.Log("Enabled");
         SpawnActiveChrono();
     }
     
     void OnDisable() {
+        Debug.Log("Disabled");
         if (activeChrono != null) {
             Destroy(activeChrono);
             activeChrono = null;
@@ -40,6 +44,6 @@ public class ActiveChronoManager : MonoBehaviour
     
     private Vector3 GetSpawnPosition()
     {
-        return transform.position - transform.right * (sr.flipX ? -0.5f : 0.5f);
+        return transform.position - transform.right * (sr.flipX ? -spawnDistance : spawnDistance);
     }
 }
