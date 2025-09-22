@@ -4,6 +4,8 @@ using Unity.Cinemachine;
 public class BattleManager : MonoBehaviour
 {
     public UIManager uiManager;
+    public CrossfadeHandler crossfadeHandler;
+
     public Transform battleGround;
     public Transform playerBattlePosition;
     public Transform allyBattlePosition;
@@ -14,19 +16,24 @@ public class BattleManager : MonoBehaviour
     
     private BattlePlayer player;
     private BattleChrono enemy;
-    
+
     public void StartBattle(Vector3 battlePosition, BattlePlayer player, BattleChrono enemy)
     {
-        // TODO: show black screen for transition and switch to battle ui.
+        crossfadeHandler.Show(() => _StartBattle(battlePosition, player, enemy));
+    }
+
+    public void _StartBattle(Vector3 battlePosition, BattlePlayer player, BattleChrono enemy)
+    {
         this.player = player;
         this.enemy = enemy;
-        
+
         battleGround.position = battlePosition;
         battleCamera.Priority = 5;
         uiManager.ShowBattleUI();
-        
+
         player.BattleSetup(playerBattlePosition, allyBattlePosition);
         enemy.BattleSetup(battlePosition, enemyBattlePosition);
+        crossfadeHandler.Hide();
     }
     
     public void PlayerAttack()
