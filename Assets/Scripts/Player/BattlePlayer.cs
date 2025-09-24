@@ -78,11 +78,11 @@ public class BattlePlayer : MonoBehaviour
     {
         _allyAnim.SetTrigger("Attack");
         _battleManager.Enemy.TakeDamage();
-        // StartCoroutine(_battleManager.DialogueManagerRef.ShowAutoCloseDialogue(new DialogueItem
-        // {
-        //     name = "Battle",
-        //     content = "Enemy took " + _allyStats.Damage + " damage."
-        // }));
+        StartCoroutine(_battleManager.DialogueManagerRef.StartAutoCloseDialogue(new DialogueItem
+        {
+            name = "Battle",
+            content = "Enemy took " + _allyStats.Damage + " damage."
+        }));
         
     }
 
