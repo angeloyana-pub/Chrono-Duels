@@ -1,6 +1,6 @@
 [System.Serializable]
-class PartyChrono
+public class PartyChrono
 {
-    public ChronoStats stats;
-    public bool isActive = false;
+    public ChronoStats Stats;
+    public bool IsActive = false;
 }

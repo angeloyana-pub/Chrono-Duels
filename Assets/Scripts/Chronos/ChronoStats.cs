@@ -1,40 +1,46 @@
 using UnityEngine;
-using UnityEngine.Events;
+using System;
 
 [System.Serializable]
 public class ChronoStats
 {
-    public ChronoData data;
+    public ChronoData Data;
+    
+    public int Level = 1;
+    public int Health = 0;
+    public bool HasCustomHealth = false;
 
-    public int level = 1;
-    public int hp;
-    public int dmg;
-
-    public int maxHp => data.baseHp + (level > 1 ? level * 3 : 0);
-    public bool isFainted => hp <= 0;
-    [HideInInspector] public UnityEvent<int> m_OnHpChange;
-
+    public int Damage => Data.BaseDamage + ((Level - 1) * 2);
+    public int MaxHealth => Data.BaseHealth + ((Level - 1) * 3);
+    public bool IsFainted => Health <= 0;
+    
+    public event Action<int> HealthChanged;
+    
     public void Init()
     {
-        m_OnHpChange = new UnityEvent<int>();
-        if (hp <= 0)
-        {
-            hp = data.baseHp + (level > 1 ? level * 3 : 0);
-        }
-        if (dmg <= 0)
-        {
-            dmg = data.baseDmg + (level > 1 ? level * 2 : 0);
-        }
+        if (Data == null) Debug.LogWarning("Data is required");
+        Health = HasCustomHealth ? Health : MaxHealth;
+        HealthChanged?.Invoke(Health);
     }
     
-    public void LevelUp() {
-        level += 1;
-        dmg = data.baseDmg + (level > 1 ? level * 2 : 0);
-    }
-    
-    public void ChangeHp(int amount)
+    public void LevelUp()
     {
-        hp = Mathf.Clamp(hp + amount, 0, maxHp);
-        m_OnHpChange.Invoke(hp);
+        Level++;
+    }
+    
+    public void ChangeHealth(int amount)
+    {
+        Health = Mathf.Clamp(Health + amount, 0, MaxHealth);
+        HealthChanged?.Invoke(Health);
+    }
+    
+    public void TakeDamage(int amount)
+    {
+        ChangeHealth(-amount);
+    }
+    
+    public void Heal(int amount)
+    {
+        ChangeHealth(amount);
     }
 }

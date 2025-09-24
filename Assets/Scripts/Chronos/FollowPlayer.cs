@@ -2,52 +2,52 @@ using UnityEngine;
 
 public class FollowPlayer : MonoBehaviour
 {
-    public float speed = 9f;
-    public float minDistance = 2f;
+    public float MovementSpeed = 9f;
+    public float MinDistance = 2f;
 
-    private Transform player;
-    private Animator anim;
-    private SpriteRenderer sr;
+    private Transform _player;
+    private Animator _anim;
+    private SpriteRenderer _sr;
 
     void Awake()
     {
-        anim = GetComponent<Animator>();
-        sr = GetComponent<SpriteRenderer>();
+        _anim = GetComponent<Animator>();
+        _sr = GetComponent<SpriteRenderer>();
     }
 
     void Update()
     {
-        if (player != null)
+        if (_player != null)
         {
-            float distance = Vector3.Distance(transform.position, player.position);
-            if (distance > minDistance)
+            float distance = Vector3.Distance(transform.position, _player.position);
+            if (distance > MinDistance)
             {
                 transform.position = Vector3.MoveTowards(
                     transform.position,
-                    player.position,
-                    speed * Time.deltaTime
+                    _player.position,
+                    MovementSpeed * Time.deltaTime
                 );
 
-                Vector3 direction = (player.position - transform.position).normalized;
+                Vector3 direction = (_player.position - transform.position).normalized;
                 if (direction.x > 0)
                 {
-                    sr.flipX = false;
+                    _sr.flipX = false;
                 }
                 else if (direction.x < 0)
                 {
-                    sr.flipX = true;
+                    _sr.flipX = true;
                 }
-                anim.SetFloat("Speed", 1);
+                _anim.SetFloat("Speed", 1);
             }
             else
             {
-                anim.SetFloat("Speed", 0);
+                _anim.SetFloat("Speed", 0);
             }
         }
     }
 
     public void SetPlayer(Transform player)
     {
-        this.player = player;
+        _player = player;
     }
 }

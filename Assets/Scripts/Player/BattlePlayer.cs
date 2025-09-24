@@ -1,111 +1,100 @@
-using TMPro;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.UI;
 
+[RequireComponent(typeof(SpriteRenderer))]
+[RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(PlayerController))]
+[RequireComponent(typeof(InventoryManager))]
+[RequireComponent(typeof(ActiveChronoManager))]
 public class BattlePlayer : MonoBehaviour
 {
-    public Transform cardContainer;
-    public GameObject cardPrefab;
-    public TextMeshProUGUI nameText;
-    public TextMeshProUGUI hpText;
+    private SpriteRenderer _sr;
+    private Animator _anim;
+    private PlayerController _playerController;
+    private InventoryManager _inventoryManager;
+    private ActiveChronoManager _activeChronoManager;
 
-    private SpriteRenderer sr;
-    private PlayerController playerController;
-    private ActiveChronoManager activeChronoManager;
-    private InventoryManager inventoryManager;
-    
-    private Transform playerBattlePosition;
-    private Transform allyBattlePosition;
-    
-    private PartyChrono allyChrono;
-    private GameObject allyChronoObject;
+    private BattleManager _battleManager;
 
-    public ChronoStats stats => allyChrono.stats;
+    private GameObject _allyObject;
+    private SpriteRenderer _allySr;
+    private Animator _allyAnim;
+    private ChronoStats _allyStats;
 
-    private UnityAction<int> allyHpChangeListener;
+    public ChronoStats AllyStats => _allyStats;
 
     void Awake()
     {
-        sr = GetComponent<SpriteRenderer>();
-        playerController = GetComponent<PlayerController>();
-        activeChronoManager = GetComponent<ActiveChronoManager>();
-        inventoryManager = GetComponent<InventoryManager>();
+        _sr = GetComponent<SpriteRenderer>();
+        _anim = GetComponent<Animator>();
+        _playerController = GetComponent<PlayerController>();
+        _inventoryManager = GetComponent<InventoryManager>();
+        _activeChronoManager = GetComponent<ActiveChronoManager>();
     }
-    
-    public void BattleSetup(Transform playerBattlePosition, Transform allyBattlePosition)
+
+    public void Setup(BattleManager battleManager)
     {
-        // TODO: check if player is eligible to fight before continuing.
-        this.playerBattlePosition = playerBattlePosition;
-        this.allyBattlePosition = allyBattlePosition;
-        
-        playerController.enabled = false;
-        activeChronoManager.enabled = false;
-        
-        transform.position = playerBattlePosition.position;
-        sr.flipX = false;
-        
-        RenderCards();
-        ChangeChrono(inventoryManager.party.FindIndex(c => !c.stats.isFainted));
-    }
-    
-    private void RenderCards()
-    {
-        for (int i = 0; i < inventoryManager.party.Count; i++)
+        _battleManager = battleManager;
+
+        _playerController.enabled = false;
+        _activeChronoManager.enabled = false;
+
+        transform.position = battleManager.PlayerBattlePosition.position;
+        _sr.flipX = false;
+
+
+        for (int i = 0; i < _inventoryManager.Party.Count; i++)
         {
             int index = i;
-            PartyChrono chrono = inventoryManager.party[i];
-            
-            GameObject cardObject = Instantiate(cardPrefab, cardContainer);
-            CardManager cardManager = cardObject.GetComponent<CardManager>();
-            Button cardButton = cardObject.GetComponent<Button>();
+            PartyChrono chrono = _inventoryManager.Party[index];
 
-            Debug.Log(chrono);
-            Debug.Log(cardManager);
-            cardManager.Init(chrono.stats);
-            cardButton.onClick.AddListener(() => ChangeChrono(index));
+            GameObject cardObject = Instantiate(_battleManager.CardPrefab, _battleManager.CardContainer);
+            CardController cardController = cardObject.GetComponent<CardController>();
+            if (cardController == null) Debug.LogWarning("cardController is null");
+            cardController.Init(chrono.Stats, () => ChangeAlly(index));
         }
+
+        ChangeAlly(_inventoryManager.Party.FindIndex(c => !c.Stats.IsFainted));
     }
-    
-    public void ChangeChrono(int index)
+
+    public void ChangeAlly(int index)
     {
-        if (allyHpChangeListener != null)
-        {
-            foreach (PartyChrono c in inventoryManager.party)
-            {
-                c.stats.m_OnHpChange.RemoveListener(allyHpChangeListener);
-            }
-        }
+        if (index < 0 || index > _inventoryManager.Party.Count) return;
 
-        PartyChrono chrono = inventoryManager.party[index];
-        nameText.text = chrono.stats.data.name;
-        hpText.text = chrono.stats.hp.ToString();
-        allyHpChangeListener = (x) => hpText.text = x.ToString();
-        chrono.stats.m_OnHpChange.AddListener(allyHpChangeListener);
+        _anim.SetTrigger("Throw");
+        Destroy(_allyObject);
 
-        if (allyChronoObject != null) Destroy(allyChronoObject);
-        allyChrono = chrono;
-        allyChronoObject = Instantiate(
-            chrono.stats.data.prefab,
-            allyBattlePosition.position,
-            Quaternion.identity // TODO: must be facing right.
+        PartyChrono chrono = _inventoryManager.Party[index];
+        _allyObject = Instantiate(
+            chrono.Stats.Data.Prefab,
+            _battleManager.AllyBattlePosition,
+            Quaternion.identity
         );
+        _allySr = _allyObject.GetComponent<SpriteRenderer>();
+        _allyAnim = _allyObject.GetComponent<Animator>();
+        _allyStats = chrono.Stats;
     }
-    
-    public void Attack(BattleChrono enemy)
+
+    public void Attack()
     {
-        enemy.stats.ChangeHp(-allyChrono.stats.dmg);
+        _allyAnim.SetTrigger("Attack");
+        _battleManager.Enemy.TakeDamage();
+        // StartCoroutine(_battleManager.DialogueManagerRef.ShowAutoCloseDialogue(new DialogueItem
+        // {
+        //     name = "Battle",
+        //     content = "Enemy took " + _allyStats.Damage + " damage."
+        // }));
+        
     }
-    
-    public void PlayerEscape()
+
+    public void Escape()
     {
-        Destroy(allyChronoObject);
-        foreach (Transform child in cardContainer.transform)
+        Destroy(_allyObject);
+        foreach (Transform child in _battleManager.CardContainer.transform)
         {
             Destroy(child.gameObject);
         }
-        
-        playerController.enabled = true;
-        activeChronoManager.enabled = true;
+
+        _playerController.enabled = true;
+        _activeChronoManager.enabled = true;
     }
 }

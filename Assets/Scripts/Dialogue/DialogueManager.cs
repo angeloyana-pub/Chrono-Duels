@@ -1,65 +1,40 @@
+using System.Data;
 using UnityEngine;
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
+using UnityEngine.UI;
+using System.Collections;
 
-class DialogueManager : MonoBehaviour {
-  public TextMeshProUGUI nameText;
-  public TextMeshProUGUI contentText;
-  public GameObject dialogueBox;
-  
-  public float defaultTypingSpeed = 0.1f;
-  public float fastTypingSpeed = 0.01f;
-  private float typingSpeed;
-  private bool isTyping = false;
-  
-  private Queue<DialogueItem> dialogue = new Queue<DialogueItem>();
-  
-  void Start() {
-    typingSpeed = defaultTypingSpeed;
-  }
-  
-  public void StartDialogue(Dialogue dialogue) {
-    Debug.Log("Starting dialogue...");
-    this.dialogue.Clear();
-    foreach (DialogueItem item in dialogue.dialogue) {
-      this.dialogue.Enqueue(item);
-    }
-    dialogueBox.SetActive(true);
-    NextDialogueItem();
-  }
-  
-  public void NextDialogueItem() {
-    Debug.Log("Display next dialogue item...");
-    if (isTyping) {
-      typingSpeed = fastTypingSpeed;
-      return;
+public class DialogueManager : MonoBehaviour
+{
+    public float TypingSpeed = 0.1f;
+    public float FastTypingSpeed = 0.01f;
+
+    [SerializeField] private GameObject _dialogueBox;
+    [SerializeField] private TextMeshProUGUI _nameText;
+    [SerializeField] private TextMeshProUGUI _contentText;
+
+    private float _typingSpeed;
+    private Button _dialogueButton;
+
+    void Awake()
+    {
+        if (_dialogueBox == null) Debug.LogWarning("_dialogueBox is null");
+        if (_nameText == null) Debug.LogWarning("_nameText is null");
+        if (_contentText == null) Debug.LogWarning("_contentText is null");
+
+        _typingSpeed = TypingSpeed;
+        _dialogueButton = _dialogueBox.GetComponent<Button>();
+        if (_dialogueButton == null) Debug.LogWarning("_dialogueButton is null");
+
     }
 
-    if (dialogue.Count <= 0) {
-      EndDialogue();
-      return;
+    public void StartDialogue(Dialogue dialogue)
+    {
+
     }
-    
-    DialogueItem item = dialogue.Dequeue();
-    nameText.text = item.name;
-    StartCoroutine(TypeContent(item.content));
-  }
-  
-  IEnumerator TypeContent(string content) {
-    isTyping = true;
-    typingSpeed = defaultTypingSpeed;
-    contentText.text = "";
-    
-    foreach (char letter in content.ToCharArray()) {
-      contentText.text += letter;
-      yield return new WaitForSeconds(typingSpeed);
+
+    private IEnumerator TypeContent(string content)
+    {
+        yield return null;
     }
-    isTyping = false;
-  }
-  
-  public void EndDialogue() {
-    Debug.Log("Hide dialogue box...");
-    dialogueBox.SetActive(false);
-  }
 }

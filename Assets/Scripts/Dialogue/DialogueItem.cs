@@ -1,7 +1,7 @@
 using UnityEngine;
 
 [System.Serializable]
-class DialogueItem {
+public class DialogueItem {
   public string name;
   [TextArea] public string content;
 }

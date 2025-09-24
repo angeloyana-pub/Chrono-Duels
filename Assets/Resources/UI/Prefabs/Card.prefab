@@ -628,7 +628,7 @@ GameObject:
   - component: {fileID: 3531636630973229028}
   - component: {fileID: 4838969785118356314}
   - component: {fileID: -7996865307123633899}
-  - component: {fileID: 4911219174254074413}
+  - component: {fileID: 7735150356425919898}
   m_Layer: 5
   m_Name: Card
   m_TagString: Untagged
@@ -738,7 +738,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
---- !u!114 &4911219174254074413
+--- !u!114 &7735150356425919898
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -747,8 +747,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 9065391627367498853}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d208fe9285247246800c9e1cc33d720, type: 3}
+  m_Script: {fileID: 11500000, guid: 54dad2ab48c808148931e361dc6e5f52, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nameText: {fileID: 7363150625018505233}
-  hpText: {fileID: 8911958153304863945}
+  _nameText: {fileID: 7363150625018505233}
+  _healthText: {fileID: 8911958153304863945}

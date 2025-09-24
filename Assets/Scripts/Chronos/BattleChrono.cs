@@ -1,43 +1,39 @@
-using TMPro;
 using UnityEngine;
 
+[RequireComponent(typeof(SpriteRenderer))]
+[RequireComponent(typeof(Animator))]
 public class BattleChrono : MonoBehaviour
 {
-    public ChronoStats stats;
-    public TextMeshProUGUI nameText;
-    public TextMeshProUGUI hpText;
+    public ChronoStats Stats;
 
-    private SpriteRenderer sr;
-    private Vector3 battlePosition;
-    private Transform enemyBattlePosition;
+    private SpriteRenderer _sr;
+    private Animator _anim;
+
+    private BattleManager _battleManager;
 
     void Awake()
     {
-        sr = GetComponent<SpriteRenderer>();
-        stats.Init();
-    }
-    
-    public void BattleSetup(Vector3 battlePosition, Transform enemyBattlePosition)
-    {
-        this.battlePosition = battlePosition;
-        this.enemyBattlePosition = enemyBattlePosition;
-
-        nameText.text = stats.data.name;
-        hpText.text = stats.hp.ToString();
-        stats.m_OnHpChange.AddListener((x) => hpText.text = x.ToString());
-
-        transform.position = enemyBattlePosition.position;
-        sr.flipX = true;
+        _sr = GetComponent<SpriteRenderer>();
+        _anim = GetComponent<Animator>();
     }
 
-    public void Attack(BattlePlayer player)
+    public void Setup(BattleManager battleManager)
     {
-        player.stats.ChangeHp(-stats.dmg);
+        _battleManager = battleManager;
+
+        transform.position = battleManager.EnemyBattlePosition.position;
+        _sr.flipX = true;
     }
 
-    public void PlayerEscape()
+    public void TakeDamage()
     {
-        transform.position = battlePosition;
-        sr.flipX = true;
+        Stats.TakeDamage(_battleManager.Player.AllyStats.Damage);
+        _anim.SetTrigger("Hurt");
+    }
+
+    public void Escape()
+    {
+        transform.position = _battleManager.BattlePosition;
+        _sr.flipX = true;
     }
 }

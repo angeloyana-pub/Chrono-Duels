@@ -1,79 +1,75 @@
+using TMPro;
 using UnityEngine;
 using Unity.Cinemachine;
 
 public class BattleManager : MonoBehaviour
 {
-    public UIManager uiManager;
-    public CrossfadeHandler crossfadeHandler;
+    [Header("UI Components")]
+    public UIManager UIManagerRef;
+    public DialogueManager DialogueManagerRef;
+    public Transform CardContainer;
+    public GameObject CardPrefab;
 
-    public Transform battleGround;
-    public Transform playerBattlePosition;
-    public Transform allyBattlePosition;
-    public Transform enemyBattlePosition;
-    public CinemachineCamera battleCamera;
-    
-    public bool isPlayerTurn = true;
-    
-    private BattlePlayer player;
-    private BattleChrono enemy;
+    [Header("Battle Settings Components")]
+    public Transform BattleGround;
+    public Transform PlayerBattlePosition;
+    public Transform EnemyBattlePosition;
+    public CinemachineCamera BattleCamera;
+
+    [HideInInspector] public Vector3 BattlePosition;
+    public Vector3 AllyBattlePosition => PlayerBattlePosition.position + PlayerBattlePosition.right * 2f;
+
+    [HideInInspector] public BattlePlayer Player;
+    [HideInInspector] public BattleChrono Enemy;
+
+    void Awake()
+    {
+        if (UIManagerRef == null) Debug.LogWarning("UIManagerRef is null");
+        if (DialogueManagerRef == null) Debug.LogWarning("DialogueManagerRef is null");
+        if (CardContainer == null) Debug.LogWarning("CardContainer is null");
+        if (CardPrefab == null) Debug.LogWarning("CardPrefab is null");
+
+        if (BattleGround == null) Debug.LogWarning("BattleGround is null");
+        if (PlayerBattlePosition == null) Debug.LogWarning("PlayerBattlePosition is null");
+        if (EnemyBattlePosition == null) Debug.LogWarning("EnemyBattlePosition is null");
+        if (BattleCamera == null) Debug.LogWarning("BattleCamera is null");
+    }
 
     public void StartBattle(Vector3 battlePosition, BattlePlayer player, BattleChrono enemy)
     {
-        crossfadeHandler.Show(() => _StartBattle(battlePosition, player, enemy));
+        StartCoroutine(UIManagerRef.ShowCrossfade(() => _startBattle(battlePosition, player, enemy)));
     }
 
-    public void _StartBattle(Vector3 battlePosition, BattlePlayer player, BattleChrono enemy)
+    private void _startBattle(Vector3 battlePosition, BattlePlayer player, BattleChrono enemy)
     {
-        this.player = player;
-        this.enemy = enemy;
+        BattlePosition = battlePosition;
+        Player = player;
+        Enemy = enemy;
 
-        battleGround.position = battlePosition;
-        battleCamera.Priority = 5;
-        uiManager.ShowBattleUI();
+        BattleGround.position = battlePosition;
+        BattleCamera.Priority = 5;
+        UIManagerRef.ShowBattleUI();
 
-        player.BattleSetup(playerBattlePosition, allyBattlePosition);
-        enemy.BattleSetup(battlePosition, enemyBattlePosition);
-        crossfadeHandler.Hide();
+        player.Setup(this);
+        enemy.Setup(this);
     }
-    
-    public void PlayerAttack()
+
+    public void Attack()
     {
-        /**
-         * TODO:
-         * - show attack dialogue
-         * - play attack animation
-         * - disable player ui
-         * - check for game over
-         * - show victory ui, destroy enemy gameobject, and put the enemy into inventory if enemy hp is down to 0.
-         */
-        if (!isPlayerTurn) return;
-        player.Attack(enemy);
-        isPlayerTurn = false;
-        EnemyAttack();
+        Player.Attack();
     }
-    
-    private void EnemyAttack()
+
+    public void Escape()
     {
-        if (isPlayerTurn) return;
-        
-        /**
-         * TODO:
-         * - show attack dialogue
-         * - play attack animation
-         * - enable player ui
-         * - check for game over
-         * - do something if player ally chrono hp is down to 0 (e.g. stop the battle and teleport to nearest health center).
-         */
-        enemy.Attack(player);
-        isPlayerTurn = true;
+        StartCoroutine(UIManagerRef.ShowCrossfade(() => _escape()));
     }
-    
-    public void PlayerEscape() {
-        // TODO: show black screen for transition and switch back to main ui.
-        battleCamera.Priority = 0;
-        uiManager.ShowMainUI();
-        
-        player.PlayerEscape();
-        enemy.PlayerEscape();
+
+    public void _escape()
+    {
+        Player.Escape();
+        Enemy.Escape();
+
+        BattleCamera.Priority = 0;
+        UIManagerRef.ShowMainUI();
     }
 }

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f6a122d6425741a4496701e79740a6fa, type: 3}
   m_Name: Prismarok
   m_EditorClassIdentifier: 
-  prefab: {fileID: 2805850882838822213, guid: 355e4c99074f7cd47b94f4ae857cf3b2, type: 3}
-  name: Prismarok
-  baseHp: 25
-  baseDmg: 6
+  Prefab: {fileID: 2805850882838822213, guid: 355e4c99074f7cd47b94f4ae857cf3b2, type: 3}
+  Name: Prismarok
+  BaseHealth: 25
+  BaseDamage: 6

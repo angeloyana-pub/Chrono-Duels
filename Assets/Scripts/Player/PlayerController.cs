@@ -2,15 +2,15 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public float speed = 10f;
+    public float MovementSpeed = 10f;
 
-    private Animator anim;
-    private SpriteRenderer sr;
+    private Animator _anim;
+    private SpriteRenderer _sr;
 
     void Awake()
     {
-        anim = GetComponent<Animator>();
-        sr = GetComponent<SpriteRenderer>();
+        _anim = GetComponent<Animator>();
+        _sr = GetComponent<SpriteRenderer>();
     }
 
     void Update()
@@ -18,22 +18,22 @@ public class PlayerController : MonoBehaviour
         float moveX = Input.GetAxis("Horizontal");
         float moveY = Input.GetAxis("Vertical");
 
-        anim.SetFloat("Speed", moveX == 0 && moveY == 0 ? 0 : 1);
+        _anim.SetFloat("Speed", moveX == 0 && moveY == 0 ? 0 : 1);
         if (moveX > 0)
         {
-            sr.flipX = false;
+            _sr.flipX = false;
         }
         else if (moveX < 0)
         {
-            sr.flipX = true;
+            _sr.flipX = true;
         }
 
         Vector3 move = transform.right * moveX + transform.forward * moveY;
-        transform.Translate(move * speed * Time.deltaTime);
+        transform.Translate(move * MovementSpeed * Time.deltaTime);
     }
     
     void OnDisable()
     {
-        anim.SetFloat("Speed", 0);
+        _anim.SetFloat("Speed", 0);
     }
 }

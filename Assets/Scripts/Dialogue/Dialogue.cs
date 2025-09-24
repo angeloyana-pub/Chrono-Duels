@@ -1,4 +1,4 @@
 [System.Serializable]
-class Dialogue {
+public class Dialogue {
   public DialogueItem[] dialogue;
 }
