@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer))]
@@ -50,17 +51,18 @@ public class BattlePlayer : MonoBehaviour
             GameObject cardObject = Instantiate(_battleManager.CardPrefab, _battleManager.CardContainer);
             CardController cardController = cardObject.GetComponent<CardController>();
             if (cardController == null) Debug.LogWarning("cardController is null");
-            cardController.Init(chrono.Stats, () => ChangeAlly(index));
+            cardController.Init(chrono.Stats, () => StartCoroutine(ChangeAlly(index)));
         }
 
-        ChangeAlly(_inventoryManager.Party.FindIndex(c => !c.Stats.IsFainted));
+        StartCoroutine(ChangeAlly(_inventoryManager.Party.FindIndex(c => !c.Stats.IsFainted)));
     }
 
-    public void ChangeAlly(int index)
+    public IEnumerator ChangeAlly(int index)
     {
-        if (index < 0 || index > _inventoryManager.Party.Count) return;
-
+        if (index < 0 || index > _inventoryManager.Party.Count) yield break;
+        
         _anim.SetTrigger("Throw");
+        yield return new WaitForSeconds(0.3f);
         Destroy(_allyObject);
 
         PartyChrono chrono = _inventoryManager.Party[index];
@@ -76,14 +78,28 @@ public class BattlePlayer : MonoBehaviour
 
     public void Attack()
     {
+        StartCoroutine(_attack());
+    }
+
+    public IEnumerator _attack()
+    {
         _allyAnim.SetTrigger("Attack");
+        yield return new WaitForSeconds(0.5f);
         _battleManager.Enemy.TakeDamage();
-        StartCoroutine(_battleManager.DialogueManagerRef.StartAutoCloseDialogue(new DialogueItem
-        {
-            name = "Battle",
-            content = "Enemy took " + _allyStats.Damage + " damage."
-        }));
-        
+        yield return new WaitForSeconds(0.5f);
+
+        _battleManager.DialogueManagerRef.ShowDialogueBox();
+        _battleManager.DialogueManagerRef.SetDialogueName("Battle");
+        _battleManager.DialogueManagerRef.SetTypingSpeed(0.06f);
+        yield return _battleManager.DialogueManagerRef.TypeContent("Enemy took " + _allyStats.Damage + " damage.");
+        yield return new WaitForSeconds(0.5f);
+        yield return _battleManager.Enemy.Attack();
+    }
+
+    public void TakeDamage()
+    {
+        _allyStats.TakeDamage(_battleManager.Enemy.Stats.Damage);
+        _allyAnim.SetTrigger("Hurt");
     }
 
     public void Escape()

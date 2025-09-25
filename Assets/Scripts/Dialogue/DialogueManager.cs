@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
-using TMPro.EditorUtilities;
+using Unity.VisualScripting;
 
 public class DialogueManager : MonoBehaviour
 {
@@ -68,21 +68,35 @@ public class DialogueManager : MonoBehaviour
         StartCoroutine(TypeContent(item.content));
     }
 
-    public IEnumerator StartAutoCloseDialogue(DialogueItem item, bool hideAllUI = true)
+    public void ShowDialogueBox(bool hideAllUI = true)
     {
         if (hideAllUI) _uiManager.HideAll();
         _dialogueButton.interactable = false;
         _dialogueBox.SetActive(true);
-
-        _nameText.text = item.name;
-        yield return TypeContent(item.content);
-
-        yield return new WaitForSeconds(0.7f);
-        _dialogueBox.SetActive(false);
-        if (hideAllUI) _uiManager.ShowBattleUI(); // TODO: allow showing previously opened ui
     }
 
-    private IEnumerator TypeContent(string content)
+    public void HideDialogueBox(UI uiToShow)
+    {
+        _dialogueBox.SetActive(false);
+        _uiManager.ShowUI(uiToShow);
+    }
+
+    public void SetDialogueName(string name)
+    {
+        _nameText.text = name;
+    }
+
+    public void SetTypingSpeed(float typingSpeed)
+    {
+        _typingSpeed = typingSpeed;
+    }
+
+    public void UseFastTypingSpeed()
+    {
+        SetTypingSpeed(FastTypingSpeed);
+    }
+
+    public IEnumerator TypeContent(string content)
     {
         _isTyping = true;
         _contentText.text = "";

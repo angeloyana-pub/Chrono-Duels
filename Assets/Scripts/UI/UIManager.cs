@@ -3,6 +3,12 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum UI
+{
+    Main,
+    Battle
+}
+
 public class UIManager : MonoBehaviour
 {
     [SerializeField] private float _crossfadeDuration = 0.5f;
@@ -42,6 +48,23 @@ public class UIManager : MonoBehaviour
     {
         HideAll();
         _battleUI.SetActive(true);
+    }
+
+    public void ShowUI(UI ui)
+    {
+        HideAll();
+        switch (ui)
+        {
+            case UI.Main:
+                _mainUI.SetActive(true);
+                break;
+            case UI.Battle:
+                _battleUI.SetActive(true);
+                break;
+            default:
+                Debug.Log("Defualt behaviour");
+                break;
+        }
     }
 
     public IEnumerator ShowCrossfade(Action callback, bool autoClose = true)

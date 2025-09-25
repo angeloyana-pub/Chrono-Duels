@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 [RequireComponent(typeof(SpriteRenderer))]
@@ -29,6 +30,15 @@ public class BattleChrono : MonoBehaviour
     {
         Stats.TakeDamage(_battleManager.Player.AllyStats.Damage);
         _anim.SetTrigger("Hurt");
+    }
+
+    public IEnumerator Attack()
+    {
+        _anim.SetTrigger("Attack");
+        _battleManager.Player.TakeDamage();
+        yield return _battleManager.DialogueManagerRef.TypeContent("Your chrono took " + Stats.Damage + " damage.");
+        yield return new WaitForSeconds(0.5f);
+        _battleManager.DialogueManagerRef.HideDialogueBox(UI.Battle);
     }
 
     public void Escape()
