@@ -42,7 +42,6 @@ public class BattlePlayer : MonoBehaviour
         transform.position = battleManager.PlayerBattlePosition.position;
         _sr.flipX = false;
 
-
         for (int i = 0; i < _inventoryManager.Party.Count; i++)
         {
             int index = i;
@@ -51,16 +50,37 @@ public class BattlePlayer : MonoBehaviour
             GameObject cardObject = Instantiate(_battleManager.CardPrefab, _battleManager.CardContainer);
             CardController cardController = cardObject.GetComponent<CardController>();
             if (cardController == null) Debug.LogWarning("cardController is null");
-            cardController.Init(chrono.Stats, () => StartCoroutine(ChangeAlly(index)));
+            cardController.Init(chrono.Stats, () =>
+            {
+                if (!chrono.Stats.IsFainted)
+                {
+                    StartCoroutine(ChangeAlly(index));
+                }
+            });
         }
 
-        StartCoroutine(ChangeAlly(_inventoryManager.Party.FindIndex(c => !c.Stats.IsFainted)));
+        StartCoroutine(ChangeAlly(FindFirstNonFaintedIndex()));
     }
 
-    public IEnumerator ChangeAlly(int index)
+    private void HandleChangeHealth(int health)
     {
-        if (index < 0 || index > _inventoryManager.Party.Count) yield break;
-        
+        _battleManager.AllyHealthText.text = health.ToString();
+    }
+
+    public int FindFirstNonFaintedIndex()
+    {
+        return _inventoryManager.Party.FindIndex(c => !c.Stats.IsFainted);
+    }
+
+    public IEnumerator ChangeAlly(int index, bool ignoreBusy = false)
+    {
+        if ((_battleManager.IsBusy && !ignoreBusy) || index < 0 || index > _inventoryManager.Party.Count) yield break;
+
+        if (_allyStats != null)
+        {
+            _allyStats.HealthChanged -= HandleChangeHealth;
+        }
+
         _anim.SetTrigger("Throw");
         yield return new WaitForSeconds(0.3f);
         Destroy(_allyObject);
@@ -74,36 +94,39 @@ public class BattlePlayer : MonoBehaviour
         _allySr = _allyObject.GetComponent<SpriteRenderer>();
         _allyAnim = _allyObject.GetComponent<Animator>();
         _allyStats = chrono.Stats;
+
+        _battleManager.AllyNameText.text = _allyStats.Data.Name;
+        HandleChangeHealth(_allyStats.Health);
+        _allyStats.HealthChanged += HandleChangeHealth;
     }
 
     public void Attack()
     {
-        StartCoroutine(_attack());
-    }
-
-    public IEnumerator _attack()
-    {
         _allyAnim.SetTrigger("Attack");
-        yield return new WaitForSeconds(0.5f);
-        _battleManager.Enemy.TakeDamage();
-        yield return new WaitForSeconds(0.5f);
-
-        _battleManager.DialogueManagerRef.ShowDialogueBox();
-        _battleManager.DialogueManagerRef.SetDialogueName("Battle");
-        _battleManager.DialogueManagerRef.SetTypingSpeed(0.06f);
-        yield return _battleManager.DialogueManagerRef.TypeContent("Enemy took " + _allyStats.Damage + " damage.");
-        yield return new WaitForSeconds(0.5f);
-        yield return _battleManager.Enemy.Attack();
     }
 
     public void TakeDamage()
     {
         _allyStats.TakeDamage(_battleManager.Enemy.Stats.Damage);
-        _allyAnim.SetTrigger("Hurt");
+        _allyAnim.SetTrigger(_allyStats.IsFainted ? "Death" : "Hurt");
     }
 
-    public void Escape()
+    public void TakeEnemy()
     {
+        _inventoryManager.Party.Add(new PartyChrono {
+            Stats = _battleManager.Enemy.Stats,
+            IsActive = true
+        });
+        _activeChronoManager.RenderChronoButtons();
+    }
+
+    public void EndBattle(bool isFainted)
+    {
+        if (_allyStats != null)
+        {
+            _allyStats.HealthChanged -= HandleChangeHealth;
+        }
+        
         Destroy(_allyObject);
         foreach (Transform child in _battleManager.CardContainer.transform)
         {
@@ -112,5 +135,14 @@ public class BattlePlayer : MonoBehaviour
 
         _playerController.enabled = true;
         _activeChronoManager.enabled = true;
+        
+        if (isFainted)
+        {
+            // TODO: teleport user to first spawnpoint or checkpoint.
+            foreach (PartyChrono chrono in _inventoryManager.Party)
+            {
+                chrono.Stats.ToFullHealth();
+            }
+        }
     }
 }

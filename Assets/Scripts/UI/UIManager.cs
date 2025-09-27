@@ -3,7 +3,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
-public enum UI
+public enum UIGroup
 {
     Main,
     Battle
@@ -16,7 +16,10 @@ public class UIManager : MonoBehaviour
     [Header("UI Objects")]
     [SerializeField] private GameObject _mainUI;
     [SerializeField] private GameObject _battleUI;
+    
+    [Header("Crossfade Settings")]
     [SerializeField] private Image _crossfade;
+    [SerializeField] private Color _crossfadeColor = Color.black;
 
     void Awake()
     {
@@ -27,9 +30,9 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
-        _crossfade.color = new Color(0f, 0f, 0f, 0f);
+        _crossfade.color = GetCrossfadeColorWithAlpha(0f);
         _crossfade.gameObject.SetActive(true);
-        ShowMainUI();
+        ShowUI(UIGroup.Main);
     }
 
     public void HideAll()
@@ -38,49 +41,34 @@ public class UIManager : MonoBehaviour
         _battleUI.SetActive(false);
     }
 
-    public void ShowMainUI()
+    public void ShowUI(UIGroup uiGroup)
     {
         HideAll();
-        _mainUI.SetActive(true);
-    }
-
-    public void ShowBattleUI()
-    {
-        HideAll();
-        _battleUI.SetActive(true);
-    }
-
-    public void ShowUI(UI ui)
-    {
-        HideAll();
-        switch (ui)
+        switch (uiGroup)
         {
-            case UI.Main:
+            case UIGroup.Main:
                 _mainUI.SetActive(true);
                 break;
-            case UI.Battle:
+            case UIGroup.Battle:
                 _battleUI.SetActive(true);
-                break;
-            default:
-                Debug.Log("Defualt behaviour");
                 break;
         }
     }
 
     public IEnumerator ShowCrossfade(Action callback, bool autoClose = true)
     {
-        _crossfade.color = new Color(0f, 0f, 0f, 0f);
+        _crossfade.color = GetCrossfadeColorWithAlpha(0f);
 
         float timer = 0f;
 
         while (timer < _crossfadeDuration)
         {
             timer += Time.deltaTime;
-            _crossfade.color = new Color(0f, 0f, 0f, Mathf.Lerp(0f, 1f, timer / _crossfadeDuration));
+            _crossfade.color = GetCrossfadeColorWithAlpha(Mathf.Lerp(0f, 1f, timer / _crossfadeDuration));
             yield return null;
         }
 
-        _crossfade.color = new Color(0f, 0f, 0f, 1f);
+        _crossfade.color = GetCrossfadeColorWithAlpha(1f);
 
         callback?.Invoke();
 
@@ -96,9 +84,19 @@ public class UIManager : MonoBehaviour
         while (timer < _crossfadeDuration)
         {
             timer += Time.deltaTime;
-            _crossfade.color = new Color(0f, 0f, 0f, Mathf.Lerp(1f, 0f, timer / _crossfadeDuration));
+            _crossfade.color = GetCrossfadeColorWithAlpha(Mathf.Lerp(1f, 0f, timer / _crossfadeDuration));
             yield return null;
         }
-        _crossfade.color = new Color(0f, 0f, 0f, 0f);
+        _crossfade.color = GetCrossfadeColorWithAlpha(0f);
+    }
+    
+    private Color GetCrossfadeColorWithAlpha(float alpha)
+    {
+        return new Color(
+            _crossfadeColor.r,
+            _crossfadeColor.g,
+            _crossfadeColor.b,
+            alpha
+        );
     }
 }

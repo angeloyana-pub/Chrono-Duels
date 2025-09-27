@@ -16,34 +16,51 @@ public class BattleChrono : MonoBehaviour
     {
         _sr = GetComponent<SpriteRenderer>();
         _anim = GetComponent<Animator>();
+
+        Stats.Init();
     }
 
     public void Setup(BattleManager battleManager)
     {
         _battleManager = battleManager;
 
+        _battleManager.EnemyNameText.text = Stats.Data.Name;
+        HandleChangeHealth(Stats.Health);
+        Stats.HealthChanged += HandleChangeHealth;
+        
         transform.position = battleManager.EnemyBattlePosition.position;
         _sr.flipX = true;
+        
+    }
+
+    private void HandleChangeHealth(int health)
+    {
+        _battleManager.EnemyHealthText.text = health.ToString();
+    }
+
+    public void Attack()
+    {
+        _anim.SetTrigger("Attack");
     }
 
     public void TakeDamage()
     {
         Stats.TakeDamage(_battleManager.Player.AllyStats.Damage);
-        _anim.SetTrigger("Hurt");
+        _anim.SetTrigger(Stats.IsFainted ? "Death" : "Hurt");
     }
 
-    public IEnumerator Attack()
+    public void EndBattle(bool isFainted)
     {
-        _anim.SetTrigger("Attack");
-        _battleManager.Player.TakeDamage();
-        yield return _battleManager.DialogueManagerRef.TypeContent("Your chrono took " + Stats.Damage + " damage.");
-        yield return new WaitForSeconds(0.5f);
-        _battleManager.DialogueManagerRef.HideDialogueBox(UI.Battle);
-    }
-
-    public void Escape()
-    {
-        transform.position = _battleManager.BattlePosition;
-        _sr.flipX = true;
+        Stats.HealthChanged -= HandleChangeHealth;
+        
+        if (!isFainted)
+        {
+            transform.position = _battleManager.BattlePosition;
+            _sr.flipX = true;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 }

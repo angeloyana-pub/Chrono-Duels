@@ -8,8 +8,7 @@ using Unity.VisualScripting;
 
 public class DialogueManager : MonoBehaviour
 {
-    public float TypingSpeed = 0.08f;
-    public float FastTypingSpeed = 0.01f;
+    public float DefaultTypingSpeed = 0.08f;
 
     [SerializeField] private UIManager _uiManager;
 
@@ -23,6 +22,7 @@ public class DialogueManager : MonoBehaviour
     private bool _isTyping = false;
 
     private Queue<DialogueItem> _dialogue = new Queue<DialogueItem>();
+    private DialogueItem _currentItem;
 
     void Awake()
     {
@@ -31,7 +31,7 @@ public class DialogueManager : MonoBehaviour
         if (_nameText == null) Debug.LogWarning("_nameText is null");
         if (_contentText == null) Debug.LogWarning("_contentText is null");
 
-        _typingSpeed = TypingSpeed;
+        _typingSpeed = DefaultTypingSpeed;
         _dialogueButton = _dialogueBox.GetComponent<Button>();
         if (_dialogueButton == null) Debug.LogWarning("_dialogueButton is null");
 
@@ -45,6 +45,7 @@ public class DialogueManager : MonoBehaviour
             _dialogue.Enqueue(item);
         }
         _dialogueBox.SetActive(true);
+        _typingSpeed = DefaultTypingSpeed;
         NextDialogueItem();
     }
 
@@ -52,7 +53,9 @@ public class DialogueManager : MonoBehaviour
     {
         if (_isTyping)
         {
-            _typingSpeed = FastTypingSpeed;
+            StopAllCoroutines();
+            _contentText.text = _currentItem.content;
+            _isTyping = false;
             return;
         }
 
@@ -62,38 +65,54 @@ public class DialogueManager : MonoBehaviour
             return;
         }
 
-        DialogueItem item = _dialogue.Dequeue();
-        _nameText.text = item.name;
-        _typingSpeed = TypingSpeed;
-        StartCoroutine(TypeContent(item.content));
+        _currentItem = _dialogue.Dequeue();
+        if (!string.IsNullOrEmpty(_currentItem.name))
+        {
+            ShowName();
+            SetName(_currentItem.name);
+        }
+        else
+        {
+            HideName();
+        }
+        StartCoroutine(TypeContent(_currentItem.content));
     }
 
     public void ShowDialogueBox(bool hideAllUI = true)
     {
         if (hideAllUI) _uiManager.HideAll();
-        _dialogueButton.interactable = false;
         _dialogueBox.SetActive(true);
     }
 
-    public void HideDialogueBox(UI uiToShow)
+    public void HideDialogueBox(UIGroup uiGroup)
     {
         _dialogueBox.SetActive(false);
-        _uiManager.ShowUI(uiToShow);
+        _uiManager.ShowUI(uiGroup);
     }
 
-    public void SetDialogueName(string name)
+    public void ShowName()
+    {
+        _nameText.gameObject.SetActive(true);
+    }
+    
+    public void HideName()
+    {
+        _nameText.gameObject.SetActive(false);
+    }
+
+    public void SetName(string name)
     {
         _nameText.text = name;
+    }
+
+    public void SetInteractable(bool value)
+    {
+        _dialogueButton.interactable = value;
     }
 
     public void SetTypingSpeed(float typingSpeed)
     {
         _typingSpeed = typingSpeed;
-    }
-
-    public void UseFastTypingSpeed()
-    {
-        SetTypingSpeed(FastTypingSpeed);
     }
 
     public IEnumerator TypeContent(string content)

@@ -23,15 +23,7 @@ public class ActiveChronoManager : MonoBehaviour
 
     void Start()
     {
-        for (int i = 0; i < _inventoryManager.Party.Count; i++)
-        {
-            int index = i;
-            PartyChrono chrono = _inventoryManager.Party[index];
-            GameObject chronoButtonObject = Instantiate(_chronoButtonPrefab, _chronoButtonContainer);
-            ChronoButtonController chronoButtonController = chronoButtonObject.GetComponent<ChronoButtonController>();
-            if (chronoButtonController == null) Debug.LogWarning("chronoButtonController is null");
-            chronoButtonController.Init(chrono, () => SpawnChrono(index));
-        }
+        RenderChronoButtons();
     }
 
     void OnEnable()
@@ -48,14 +40,34 @@ public class ActiveChronoManager : MonoBehaviour
         }
     }
     
+    public void RenderChronoButtons()
+    {
+        // foreach (Transform child in _chronoButtonContainer.transform)
+        // {
+        //     Destroy(child.gameObject);
+        // }
+
+        for (int i = 0; i < _inventoryManager.Party.Count; i++)
+        {
+            int index = i;
+            PartyChrono chrono = _inventoryManager.Party[index];
+            GameObject chronoButtonObject = Instantiate(_chronoButtonPrefab, _chronoButtonContainer);
+            ChronoButtonController chronoButtonController = chronoButtonObject.GetComponent<ChronoButtonController>();
+            if (chronoButtonController == null) Debug.LogWarning("chronoButtonController is null");
+            chronoButtonController.Init(chrono, () => SpawnChrono(index));
+        }
+    }
+
     public void SpawnChrono(int index)
     {
-        if (_inventoryManager.Party.Count <= 0 || index < 0 || index >= _inventoryManager.Party.Count) {
+        if (_inventoryManager.Party.Count <= 0 || index < 0 || index >= _inventoryManager.Party.Count)
+        {
             Debug.LogWarning("Invalid index or party is empty.");
             return;
         }
-        
-        if (_activeChrono != null) {
+
+        if (_activeChrono != null)
+        {
             Destroy(_activeChrono);
             _activeChrono = null;
         }

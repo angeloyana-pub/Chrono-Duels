@@ -14,6 +14,7 @@ public class ChronoButtonController : MonoBehaviour
     void Awake()
     {
         if (_nameText == null) Debug.LogWarning("_nameText is null");
+        Debug.Log("Awake ChronoButtonController");
         _button = GetComponent<Button>();
     }
 
@@ -25,7 +26,7 @@ public class ChronoButtonController : MonoBehaviour
     public void Init(PartyChrono chrono, UnityAction handleClick)
     {
         _handleClick = handleClick;
-        _button.onClick.AddListener(handleClick);
+        if (_button != null) _button.onClick.AddListener(handleClick);
         _nameText.text = chrono.Stats.Data.Name;
     }
 }

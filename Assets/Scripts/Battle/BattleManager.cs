@@ -2,6 +2,7 @@ using TMPro;
 using UnityEngine;
 using Unity.Cinemachine;
 using Unity.VisualScripting.Antlr3.Runtime.Misc;
+using System.Collections;
 
 public class BattleManager : MonoBehaviour
 {
@@ -10,6 +11,12 @@ public class BattleManager : MonoBehaviour
     public DialogueManager DialogueManagerRef;
     public Transform CardContainer;
     public GameObject CardPrefab;
+    
+    [Header("Stats UI Components")]
+    public TextMeshProUGUI AllyNameText;
+    public TextMeshProUGUI AllyHealthText;
+    public TextMeshProUGUI EnemyNameText;
+    public TextMeshProUGUI EnemyHealthText;
 
     [Header("Battle Settings Components")]
     public Transform BattleGround;
@@ -22,6 +29,7 @@ public class BattleManager : MonoBehaviour
 
     [HideInInspector] public BattlePlayer Player;
     [HideInInspector] public BattleChrono Enemy;
+    [HideInInspector] public bool IsBusy = false;
 
     void Awake()
     {
@@ -29,6 +37,11 @@ public class BattleManager : MonoBehaviour
         if (DialogueManagerRef == null) Debug.LogWarning("DialogueManagerRef is null");
         if (CardContainer == null) Debug.LogWarning("CardContainer is null");
         if (CardPrefab == null) Debug.LogWarning("CardPrefab is null");
+
+        if (AllyNameText == null) Debug.LogWarning("AllyNameText is null");
+        if (AllyHealthText == null) Debug.LogWarning("AllyHealthText is null");
+        if (EnemyNameText == null) Debug.LogWarning("EnemyNameText is null");
+        if (EnemyHealthText == null) Debug.LogWarning("EnemyHealthText is null");
 
         if (BattleGround == null) Debug.LogWarning("BattleGround is null");
         if (PlayerBattlePosition == null) Debug.LogWarning("PlayerBattlePosition is null");
@@ -46,18 +59,90 @@ public class BattleManager : MonoBehaviour
         BattlePosition = battlePosition;
         Player = player;
         Enemy = enemy;
+        IsBusy = false;
 
         BattleGround.position = battlePosition;
         BattleCamera.Priority = 5;
-        UIManagerRef.ShowBattleUI();
+        UIManagerRef.ShowUI(UIGroup.Battle);
 
         player.Setup(this);
         enemy.Setup(this);
     }
 
-    public void Attack()
+    public void StartAttackSequence()
+    {
+        if (IsBusy) return;
+        IsBusy = true;
+        StartCoroutine(_startAttackSequence());
+    }
+    
+    private IEnumerator _startAttackSequence()
     {
         Player.Attack();
+        yield return new WaitForSeconds(0.5f);
+        Enemy.TakeDamage();
+        yield return new WaitForSeconds(0.5f);
+        
+        DialogueManagerRef.ShowDialogueBox();
+        DialogueManagerRef.SetInteractable(false);
+        DialogueManagerRef.HideName();
+        DialogueManagerRef.SetTypingSpeed(0.03f);
+        yield return DialogueManagerRef.TypeContent($"Enemy took {Player.AllyStats.Damage} damage.");
+        yield return new WaitForSeconds(0.5f);
+        
+        if (Enemy.Stats.IsFainted)
+        {
+            yield return DialogueManagerRef.TypeContent($"You won the battle!");
+            yield return new WaitForSeconds(0.5f);
+            yield return UIManagerRef.ShowCrossfade(null, false);
+            
+            Player.TakeEnemy();
+            Player.EndBattle(false);
+            Enemy.EndBattle(true);
+            EndBattle();
+            
+            DialogueManagerRef.HideDialogueBox(UIGroup.Main);
+            
+            yield return UIManagerRef.HideCrossfade();
+            yield break;
+        }
+        
+        Enemy.Attack();
+        yield return new WaitForSeconds(0.5f);
+        Player.TakeDamage();
+        yield return new WaitForSeconds(0.5f);
+        
+        yield return DialogueManagerRef.TypeContent($"Ally took {Enemy.Stats.Damage} damage.");
+        yield return new WaitForSeconds(0.5f);
+        
+        if (Player.AllyStats.IsFainted)
+        {
+            int index = Player.FindFirstNonFaintedIndex();
+            if (index != -1)
+            {
+                string prevAllyName = Player.AllyStats.Data.Name;
+                yield return Player.ChangeAlly(index, true);
+                yield return DialogueManagerRef.TypeContent($"Your {prevAllyName} fainted! Go {Player.AllyStats.Data.Name}!");
+            }
+            else
+            {
+                yield return DialogueManagerRef.TypeContent($"You lose the battle.");
+                yield return new WaitForSeconds(0.5f);
+                yield return UIManagerRef.ShowCrossfade(null, false);
+                
+                Player.EndBattle(true);
+                Enemy.EndBattle(false);
+                EndBattle();
+                
+                DialogueManagerRef.HideDialogueBox(UIGroup.Main);
+                
+                yield return UIManagerRef.HideCrossfade();
+                yield break;
+            }
+        }
+        
+        DialogueManagerRef.HideDialogueBox(UIGroup.Battle);
+        IsBusy = false;
     }
 
     public void Escape()
@@ -65,12 +150,16 @@ public class BattleManager : MonoBehaviour
         StartCoroutine(UIManagerRef.ShowCrossfade(() => _escape()));
     }
 
-    public void _escape()
+    private void _escape()
     {
-        Player.Escape();
-        Enemy.Escape();
-
+        Player.EndBattle(false);
+        Enemy.EndBattle(false);
+        EndBattle();
+    }
+    
+    public void EndBattle()
+    {
         BattleCamera.Priority = 0;
-        UIManagerRef.ShowMainUI();
+        UIManagerRef.ShowUI(UIGroup.Main);
     }
 }
