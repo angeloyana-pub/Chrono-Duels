@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Shroomgus
   m_EditorClassIdentifier: 
   Prefab: {fileID: 8937321002697571661, guid: 32b582d923c843749b7c996583d56324, type: 3}
+  Avatar: {fileID: 21300000, guid: f6bc5a6cb950d9f4ab76ee18b7d8d85d, type: 3}
   Name: Shroomgus
   BaseHealth: 25
   BaseDamage: 6

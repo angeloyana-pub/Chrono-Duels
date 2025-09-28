@@ -4,6 +4,7 @@ using UnityEngine;
 public class ChronoData : ScriptableObject
 {
     public GameObject Prefab;
+    public Sprite Avatar;
     
     public string Name;
     public int BaseHealth;

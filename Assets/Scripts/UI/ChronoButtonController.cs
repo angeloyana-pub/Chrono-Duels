@@ -6,15 +6,14 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Button))]
 public class ChronoButtonController : MonoBehaviour
 {
-    [SerializeField] private TextMeshProUGUI _nameText;
+    [SerializeField] private Image _avatarImage;
     private Button _button;
 
     private UnityAction _handleClick;
 
     void Awake()
     {
-        if (_nameText == null) Debug.LogWarning("_nameText is null");
-        Debug.Log("Awake ChronoButtonController");
+        if (_avatarImage == null) Debug.LogWarning("_avatarImage is null");
         _button = GetComponent<Button>();
     }
 
@@ -25,8 +24,11 @@ public class ChronoButtonController : MonoBehaviour
 
     public void Init(PartyChrono chrono, UnityAction handleClick)
     {
+        // NOTE: temporary fix for when Init runs before Awake.
+        if (_button == null) _button = GetComponent<Button>();
+
         _handleClick = handleClick;
-        if (_button != null) _button.onClick.AddListener(handleClick);
-        _nameText.text = chrono.Stats.Data.Name;
+        _button.onClick.AddListener(handleClick);
+        _avatarImage.sprite = chrono.Stats.Data.Avatar;
     }
 }

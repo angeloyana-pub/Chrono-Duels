@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Prismarok
   m_EditorClassIdentifier: 
   Prefab: {fileID: 2805850882838822213, guid: 355e4c99074f7cd47b94f4ae857cf3b2, type: 3}
+  Avatar: {fileID: 21300000, guid: f10d2aeccd122dd4ca15afa0528ea36c, type: 3}
   Name: Prismarok
   BaseHealth: 25
   BaseDamage: 6

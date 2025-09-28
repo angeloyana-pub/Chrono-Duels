@@ -42,10 +42,10 @@ public class ActiveChronoManager : MonoBehaviour
     
     public void RenderChronoButtons()
     {
-        // foreach (Transform child in _chronoButtonContainer.transform)
-        // {
-        //     Destroy(child.gameObject);
-        // }
+        foreach (Transform child in _chronoButtonContainer.transform)
+        {
+            Destroy(child.gameObject);
+        }
 
         for (int i = 0; i < _inventoryManager.Party.Count; i++)
         {

@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Flarewurm
   m_EditorClassIdentifier: 
   Prefab: {fileID: 4026184317273661898, guid: 4d85ee0f87ffdf34a9b3f1a38d65a271, type: 3}
+  Avatar: {fileID: 21300000, guid: df588b75d93da0c4a89a6d89dc8f82a3, type: 3}
   Name: Flarewurm
   BaseHealth: 25
   BaseDamage: 6
