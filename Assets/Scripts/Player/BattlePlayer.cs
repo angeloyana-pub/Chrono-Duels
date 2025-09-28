@@ -138,7 +138,7 @@ public class BattlePlayer : MonoBehaviour
         
         if (isFainted)
         {
-            // TODO: teleport user to first spawnpoint or checkpoint.
+            transform.position = _battleManager.SpawnPosition.position;
             foreach (PartyChrono chrono in _inventoryManager.Party)
             {
                 chrono.Stats.ToFullHealth();

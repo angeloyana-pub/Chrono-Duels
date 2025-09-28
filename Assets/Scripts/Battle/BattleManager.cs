@@ -23,6 +23,7 @@ public class BattleManager : MonoBehaviour
     public Transform PlayerBattlePosition;
     public Transform EnemyBattlePosition;
     public CinemachineCamera BattleCamera;
+    public Transform SpawnPosition;
 
     [HideInInspector] public Vector3 BattlePosition;
     public Vector3 AllyBattlePosition => PlayerBattlePosition.position + PlayerBattlePosition.right * 2f;
@@ -47,6 +48,7 @@ public class BattleManager : MonoBehaviour
         if (PlayerBattlePosition == null) Debug.LogWarning("PlayerBattlePosition is null");
         if (EnemyBattlePosition == null) Debug.LogWarning("EnemyBattlePosition is null");
         if (BattleCamera == null) Debug.LogWarning("BattleCamera is null");
+        if (SpawnPosition == null) Debug.LogWarning("SpawnPosition is null");
     }
 
     public void StartBattle(Vector3 battlePosition, BattlePlayer player, BattleChrono enemy)

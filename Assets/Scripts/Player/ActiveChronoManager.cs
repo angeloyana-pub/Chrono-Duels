@@ -1,22 +1,28 @@
 using UnityEngine;
+using TMPro;
 
 [RequireComponent(typeof(SpriteRenderer))]
 [RequireComponent(typeof(InventoryManager))]
 public class ActiveChronoManager : MonoBehaviour
 {
+    [SerializeField] public UIManager UIManagerRef;
+
     public float SpawnDistance = 2f;
     [SerializeField] private Transform _chronoButtonContainer;
     [SerializeField] private GameObject _chronoButtonPrefab;
+    [SerializeField] private TextMeshProUGUI _chronoSettingsNameText;
 
     private SpriteRenderer _sr;
     private InventoryManager _inventoryManager;
     
     private GameObject _activeChrono;
+    private int _openedChronoSettingsIndex = -1;
     
     void Awake()
     {
         if (_chronoButtonContainer == null) Debug.LogWarning("_chronoButtonContainer is null");
         if (_chronoButtonPrefab == null) Debug.LogWarning("_chronoButtonPrefab is null");
+        if (_chronoSettingsNameText == null) Debug.LogWarning("_chronoSettingsNameText is null");
         _sr = GetComponent<SpriteRenderer>();
         _inventoryManager = GetComponent<InventoryManager>();
     }
@@ -54,8 +60,20 @@ public class ActiveChronoManager : MonoBehaviour
             GameObject chronoButtonObject = Instantiate(_chronoButtonPrefab, _chronoButtonContainer);
             ChronoButtonController chronoButtonController = chronoButtonObject.GetComponent<ChronoButtonController>();
             if (chronoButtonController == null) Debug.LogWarning("chronoButtonController is null");
-            chronoButtonController.Init(chrono, () => SpawnChrono(index));
+            chronoButtonController.Init(chrono, () =>
+            {
+                _openedChronoSettingsIndex = index;
+                _chronoSettingsNameText.text = chrono.Stats.Data.Name;
+                UIManagerRef.ShowUI(UIGroup.ChronoSettings);
+            });
         }
+    }
+
+    public void SpawnOpenedChronoSettingsIndex()
+    {
+        SpawnChrono(_openedChronoSettingsIndex);
+        _openedChronoSettingsIndex = -1;
+        UIManagerRef.ShowUI(UIGroup.Main);
     }
 
     public void SpawnChrono(int index)
