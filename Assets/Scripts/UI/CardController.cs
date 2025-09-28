@@ -6,6 +6,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Button))]
 public class CardController : MonoBehaviour
 {
+    [SerializeField] private Image _avatarImage;
     [SerializeField] private TextMeshProUGUI _nameText;
     [SerializeField] private TextMeshProUGUI _healthText;
     private Button _button;
@@ -15,6 +16,7 @@ public class CardController : MonoBehaviour
 
     void Awake()
     {
+        if (_avatarImage == null) Debug.LogWarning("_avatarImage is null");
         if (_nameText == null) Debug.LogWarning("_nameText is null");
         if (_healthText == null) Debug.LogWarning("_healthText is null");
 
@@ -32,6 +34,7 @@ public class CardController : MonoBehaviour
         _stats = stats;
         _handleClick = handleClick;
         
+        SetAvatar(stats.Data.Avatar);
         SetName(stats.Data.Name);
         SetHealth(stats.Health);
         
@@ -39,6 +42,11 @@ public class CardController : MonoBehaviour
         _button.onClick.AddListener(_handleClick);
     }
     
+    public void SetAvatar(Sprite avatar)
+    {
+        _avatarImage.sprite = avatar;
+    }
+
     public void SetName(string name)
     {
         _nameText.text = name;
