@@ -66,5 +66,5 @@
     "explorer.fileNesting.patterns": {
         "*.sln": "*.csproj"
     },
-    "dotnet.defaultSolution": "Chrono Duels.sln"
+    "dotnet.defaultSolution": "Chrono-Duels.sln"
 }
