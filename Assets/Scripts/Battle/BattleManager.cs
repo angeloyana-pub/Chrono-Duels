@@ -3,20 +3,23 @@ using UnityEngine;
 using Unity.Cinemachine;
 using Unity.VisualScripting.Antlr3.Runtime.Misc;
 using System.Collections;
+using UnityEngine.UI;
 
 public class BattleManager : MonoBehaviour
 {
+    public AudioManager AudioManagerRef;
+
     [Header("UI Components")]
     public UIManager UIManagerRef;
     public DialogueManager DialogueManagerRef;
     public Transform CardContainer;
     public GameObject CardPrefab;
-    
+
     [Header("Stats UI Components")]
     public TextMeshProUGUI AllyNameText;
-    public TextMeshProUGUI AllyHealthText;
+    public Slider AllyHealthSlider;
     public TextMeshProUGUI EnemyNameText;
-    public TextMeshProUGUI EnemyHealthText;
+    public Slider EnemyHealthSlider;
 
     [Header("Battle Settings Components")]
     public Transform BattleGround;
@@ -40,9 +43,9 @@ public class BattleManager : MonoBehaviour
         if (CardPrefab == null) Debug.LogWarning("CardPrefab is null");
 
         if (AllyNameText == null) Debug.LogWarning("AllyNameText is null");
-        if (AllyHealthText == null) Debug.LogWarning("AllyHealthText is null");
+        if (AllyHealthSlider == null) Debug.LogWarning("AllyHealthSlider is null");
         if (EnemyNameText == null) Debug.LogWarning("EnemyNameText is null");
-        if (EnemyHealthText == null) Debug.LogWarning("EnemyHealthText is null");
+        if (EnemyHealthSlider == null) Debug.LogWarning("EnemyHealthSlider is null");
 
         if (BattleGround == null) Debug.LogWarning("BattleGround is null");
         if (PlayerBattlePosition == null) Debug.LogWarning("PlayerBattlePosition is null");
@@ -69,6 +72,7 @@ public class BattleManager : MonoBehaviour
 
         player.Setup(this);
         enemy.Setup(this);
+        AudioManagerRef.PlayBattleClip();
     }
 
     public void StartAttackSequence()
@@ -77,46 +81,46 @@ public class BattleManager : MonoBehaviour
         IsBusy = true;
         StartCoroutine(_startAttackSequence());
     }
-    
+
     private IEnumerator _startAttackSequence()
     {
         Player.Attack();
         yield return new WaitForSeconds(0.5f);
         Enemy.TakeDamage();
         yield return new WaitForSeconds(0.5f);
-        
+
         DialogueManagerRef.ShowDialogueBox();
         DialogueManagerRef.SetInteractable(false);
         DialogueManagerRef.HideName();
         DialogueManagerRef.SetTypingSpeed(0.03f);
         yield return DialogueManagerRef.TypeContent($"Enemy took {Player.AllyStats.Damage} damage.");
         yield return new WaitForSeconds(0.5f);
-        
+
         if (Enemy.Stats.IsFainted)
         {
             yield return DialogueManagerRef.TypeContent($"You won the battle!");
             yield return new WaitForSeconds(0.5f);
             yield return UIManagerRef.ShowCrossfade(null, false);
-            
+
             Player.TakeEnemy();
             Player.EndBattle(false);
             Enemy.EndBattle(true);
             EndBattle();
-            
+
             DialogueManagerRef.HideDialogueBox(UIGroup.Main);
-            
+
             yield return UIManagerRef.HideCrossfade();
             yield break;
         }
-        
+
         Enemy.Attack();
         yield return new WaitForSeconds(0.5f);
         Player.TakeDamage();
         yield return new WaitForSeconds(0.5f);
-        
+
         yield return DialogueManagerRef.TypeContent($"Ally took {Enemy.Stats.Damage} damage.");
         yield return new WaitForSeconds(0.5f);
-        
+
         if (Player.AllyStats.IsFainted)
         {
             int index = Player.FindFirstNonFaintedIndex();
@@ -131,18 +135,18 @@ public class BattleManager : MonoBehaviour
                 yield return DialogueManagerRef.TypeContent($"You lose the battle.");
                 yield return new WaitForSeconds(0.5f);
                 yield return UIManagerRef.ShowCrossfade(null, false);
-                
+
                 Player.EndBattle(true);
                 Enemy.EndBattle(false);
                 EndBattle();
-                
+
                 DialogueManagerRef.HideDialogueBox(UIGroup.Main);
-                
+
                 yield return UIManagerRef.HideCrossfade();
                 yield break;
             }
         }
-        
+
         DialogueManagerRef.HideDialogueBox(UIGroup.Battle);
         IsBusy = false;
     }
@@ -158,9 +162,10 @@ public class BattleManager : MonoBehaviour
         Enemy.EndBattle(false);
         EndBattle();
     }
-    
+
     public void EndBattle()
     {
+        AudioManagerRef.PlayOverworldClip();
         BattleCamera.Priority = 0;
         UIManagerRef.ShowUI(UIGroup.Main);
     }

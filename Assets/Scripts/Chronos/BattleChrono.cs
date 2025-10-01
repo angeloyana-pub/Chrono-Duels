@@ -25,17 +25,18 @@ public class BattleChrono : MonoBehaviour
         _battleManager = battleManager;
 
         _battleManager.EnemyNameText.text = Stats.Data.Name;
+        _battleManager.EnemyHealthSlider.maxValue = Stats.MaxHealth;
         HandleChangeHealth(Stats.Health);
         Stats.HealthChanged += HandleChangeHealth;
-        
+
         transform.position = battleManager.EnemyBattlePosition.position;
         _sr.flipX = true;
-        
+
     }
 
     private void HandleChangeHealth(int health)
     {
-        _battleManager.EnemyHealthText.text = health.ToString();
+        _battleManager.EnemyHealthSlider.value = health;
     }
 
     public void Attack()
@@ -52,7 +53,7 @@ public class BattleChrono : MonoBehaviour
     public void EndBattle(bool isFainted)
     {
         Stats.HealthChanged -= HandleChangeHealth;
-        
+
         if (!isFainted)
         {
             transform.position = _battleManager.BattlePosition;

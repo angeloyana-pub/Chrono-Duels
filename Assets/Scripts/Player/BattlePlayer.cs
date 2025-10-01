@@ -64,7 +64,7 @@ public class BattlePlayer : MonoBehaviour
 
     private void HandleChangeHealth(int health)
     {
-        _battleManager.AllyHealthText.text = health.ToString();
+        _battleManager.AllyHealthSlider.value = health;
     }
 
     public int FindFirstNonFaintedIndex()
@@ -96,6 +96,7 @@ public class BattlePlayer : MonoBehaviour
         _allyStats = chrono.Stats;
 
         _battleManager.AllyNameText.text = _allyStats.Data.Name;
+        _battleManager.AllyHealthSlider.maxValue = _allyStats.MaxHealth;
         HandleChangeHealth(_allyStats.Health);
         _allyStats.HealthChanged += HandleChangeHealth;
     }
@@ -113,7 +114,8 @@ public class BattlePlayer : MonoBehaviour
 
     public void TakeEnemy()
     {
-        _inventoryManager.Party.Add(new PartyChrono {
+        _inventoryManager.Party.Add(new PartyChrono
+        {
             Stats = _battleManager.Enemy.Stats,
             IsActive = true
         });
@@ -126,7 +128,7 @@ public class BattlePlayer : MonoBehaviour
         {
             _allyStats.HealthChanged -= HandleChangeHealth;
         }
-        
+
         Destroy(_allyObject);
         foreach (Transform child in _battleManager.CardContainer.transform)
         {
@@ -135,7 +137,7 @@ public class BattlePlayer : MonoBehaviour
 
         _playerController.enabled = true;
         _activeChronoManager.enabled = true;
-        
+
         if (isFainted)
         {
             transform.position = _battleManager.SpawnPosition.position;
