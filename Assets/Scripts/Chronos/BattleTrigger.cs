@@ -11,11 +11,19 @@ public class BattleTrigger : MonoBehaviour
         _battleChrono = GetComponent<BattleChrono>();
     }
 
-    void OnTriggerEnter(Collider other)
+    // void OnTriggerEnter(Collider other)
+    // {
+    //     if (other.CompareTag("Player"))
+    //     {
+    //         _battleManager.StartBattle(transform.position, other.GetComponent<BattlePlayer>(), _battleChrono);
+    //     }
+    // }
+
+    void OnCollisionEnter(Collision collision)
     {
-        if (other.CompareTag("Player"))
+        if (collision.gameObject.CompareTag("Player"))
         {
-            _battleManager.StartBattle(transform.position, other.GetComponent<BattlePlayer>(), _battleChrono);
+            _battleManager.StartBattle(transform.position, collision.gameObject.GetComponent<BattlePlayer>(), _battleChrono);
         }
     }
 }

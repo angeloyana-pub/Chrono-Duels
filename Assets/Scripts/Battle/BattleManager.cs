@@ -33,6 +33,8 @@ public class BattleManager : MonoBehaviour
 
     [HideInInspector] public BattlePlayer Player;
     [HideInInspector] public BattleChrono Enemy;
+
+    private bool HasStarted = false;
     [HideInInspector] public bool IsBusy = false;
 
     void Awake()
@@ -56,6 +58,8 @@ public class BattleManager : MonoBehaviour
 
     public void StartBattle(Vector3 battlePosition, BattlePlayer player, BattleChrono enemy)
     {
+        if (HasStarted) return;
+        HasStarted = true;
         StartCoroutine(UIManagerRef.ShowCrossfade(() => _startBattle(battlePosition, player, enemy)));
     }
 
@@ -168,5 +172,6 @@ public class BattleManager : MonoBehaviour
         AudioManagerRef.PlayOverworldClip();
         BattleCamera.Priority = 0;
         UIManagerRef.ShowUI(UIGroup.Main);
+        HasStarted = false;
     }
 }
