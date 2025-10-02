@@ -114,6 +114,7 @@ public class BattlePlayer : MonoBehaviour
 
     public void TakeEnemy()
     {
+        _battleManager.Enemy.Stats.ToFullHealth();
         _inventoryManager.Party.Add(new PartyChrono
         {
             Stats = _battleManager.Enemy.Stats,
@@ -135,9 +136,6 @@ public class BattlePlayer : MonoBehaviour
             Destroy(child.gameObject);
         }
 
-        _playerController.enabled = true;
-        _activeChronoManager.enabled = true;
-
         if (isFainted)
         {
             transform.position = _battleManager.SpawnPosition.position;
@@ -146,5 +144,8 @@ public class BattlePlayer : MonoBehaviour
                 chrono.Stats.ToFullHealth();
             }
         }
+
+        _playerController.enabled = true;
+        _activeChronoManager.enabled = true;
     }
 }

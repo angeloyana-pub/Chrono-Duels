@@ -104,6 +104,8 @@ public class BattleManager : MonoBehaviour
         {
             yield return DialogueManagerRef.TypeContent($"You won the battle!");
             yield return new WaitForSeconds(0.5f);
+            Player.AllyStats.LevelUp();
+            yield return DialogueManagerRef.TypeContent($"{Player.AllyStats.Data.Name} is now level {Player.AllyStats.Level}.");
             yield return UIManagerRef.ShowCrossfade(null, false);
 
             Player.TakeEnemy();
