@@ -1,3 +1,4 @@
+using UnityEditor.SettingsManagement;
 using UnityEngine;
 
 public class AudioManager : MonoBehaviour
@@ -8,7 +9,19 @@ public class AudioManager : MonoBehaviour
 
     void Start()
     {
+        _audioSource.volume = SettingsManager.Instance.MusicVolume;
+        SettingsManager.Instance.MusicVolumeChanged += HandleVolumeChange;
         PlayOverworldClip();
+    }
+
+    void OnDestroy()
+    {
+        SettingsManager.Instance.MusicVolumeChanged -= HandleVolumeChange;
+    }
+
+    private void HandleVolumeChange(float volume)
+    {
+        _audioSource.volume = volume;
     }
 
     public void PlayOverworldClip()
