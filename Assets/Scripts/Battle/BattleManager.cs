@@ -27,6 +27,8 @@ public class BattleManager : MonoBehaviour
     public Transform EnemyBattlePosition;
     public CinemachineCamera BattleCamera;
     public Transform SpawnPosition;
+    public CinemachineCamera AllyCamera;
+    public CinemachineCamera EnemyCamera;
 
     [HideInInspector] public Vector3 BattlePosition;
     public Vector3 AllyBattlePosition => PlayerBattlePosition.position + PlayerBattlePosition.right * 2f;
@@ -54,6 +56,8 @@ public class BattleManager : MonoBehaviour
         if (EnemyBattlePosition == null) Debug.LogWarning("EnemyBattlePosition is null");
         if (BattleCamera == null) Debug.LogWarning("BattleCamera is null");
         if (SpawnPosition == null) Debug.LogWarning("SpawnPosition is null");
+        if (AllyCamera == null) Debug.LogWarning("AllyCamera is null");
+        if (EnemyCamera == null) Debug.LogWarning("EnemyCamera is null");
     }
 
     public void StartBattle(Vector3 battlePosition, BattlePlayer player, BattleChrono enemy)
@@ -88,8 +92,10 @@ public class BattleManager : MonoBehaviour
 
     private IEnumerator _startAttackSequence()
     {
+        AllyCamera.Priority = 10;
         Player.Attack();
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(1f);
+        AllyCamera.Priority = 0;
         Enemy.TakeDamage();
         yield return new WaitForSeconds(0.5f);
 
@@ -119,8 +125,10 @@ public class BattleManager : MonoBehaviour
             yield break;
         }
 
+        EnemyCamera.Priority = 10;
         Enemy.Attack();
-        yield return new WaitForSeconds(0.5f);
+        yield return new WaitForSeconds(1f);
+        EnemyCamera.Priority = 0;
         Player.TakeDamage();
         yield return new WaitForSeconds(0.5f);
 
